@@ -19,15 +19,25 @@ public class Home extends JFrame implements Runnable {
 
 	private final static Bible BIBLE = Bible.getInstant();
 	
+	final String COMMENTARY = "enter your comments...";
+	final String VERSE	=	"Write the actual verse...";
+	
 	JFrame frame = new JFrame("Home");
-	JButton btnSelectBook = new JButton("select");
+	//Add
+	JButton btnAddVerse = new JButton("add verse");
 	JTextField txtCh = new JTextField("Ch");
 	JTextField txtVNum = new JTextField("Verse Number");
-	JTextArea txtActualVerse = new JTextArea("Write the actual verse...");
+	JTextArea txtCommentary = new JTextArea(COMMENTARY);
+	JScrollPane scrCommentary = new JScrollPane(txtCommentary);
+	JTextArea txtActualVerse = new JTextArea(VERSE);
+
+	
+	//panes
 	JPanel pnlNorth = new JPanel();
 	JPanel pnlSth = new JPanel();
 	JPanel pnlEst = new JPanel();
 	JPanel pnlWst = new JPanel();
+	//existing
 	Listing l = new Listing();
 	LoadedVerses loadedVerses = new LoadedVerses();
 	
@@ -39,27 +49,34 @@ public class Home extends JFrame implements Runnable {
 		super.setSize(700, 700);
 		txtCh.setPreferredSize(new Dimension(100,30));
 		txtVNum.setPreferredSize(new Dimension(100,30));
-		txtActualVerse.setPreferredSize(new Dimension(400,300));
+		txtActualVerse.setPreferredSize(new Dimension(400,200));
+		scrCommentary.setPreferredSize(new Dimension(400,200));
 		pnlWst.add(l.books);
 		pnlNorth.add(loadedVerses.scrl);
-		pnlSth.add(btnSelectBook);
+		pnlSth.add(btnAddVerse);
 		pnlSth.add(txtCh);
-		pnlNorth.add(txtActualVerse);
+		pnlSth.add(txtVNum);
 		pnlNorth.setSize(700, 700);
-
+		pnlSth.add(txtActualVerse);
+		pnlSth.add(scrCommentary);
 		super.getContentPane().add(pnlNorth, BorderLayout.NORTH);
 		super.getContentPane().add(pnlSth, BorderLayout.SOUTH);
 		super.getContentPane().add(pnlWst, BorderLayout.WEST);
 		super.getContentPane().add(pnlEst, BorderLayout.EAST);
-		btnSelectBook.addActionListener(new ActionListener() {
+		btnAddVerse.addActionListener(new ActionListener() {
 			@Override
 			public void actionPerformed(ActionEvent e) {
 				System.out.println("Managing Book");
 				BIBLE.selectBook(l.selectedTitle).manageBook(
-					Integer.parseInt(txtCh.getText()), Integer.parseInt(txtVNum.getText()), txtActualVerse.getText());
+						Integer.parseInt(txtCh.getText()),
+						Integer.parseInt(txtVNum.getText()),
+						txtActualVerse.getText());
+				if()
 			}
 		});
+		super.pack();
 		super.setVisible(true);
+		super.setResizable(false);
 		super.setDefaultCloseOperation(DISPOSE_ON_CLOSE);
 	}
 	protected static class AddNotes {
