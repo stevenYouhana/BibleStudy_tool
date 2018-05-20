@@ -27,6 +27,6 @@ public class main {
 		b.selectBook("Mathew").getVerses().get(0).setComment("my comments...");
 		System.out.println(b.selectBook("Mathew").getVerses().get(0).getDetails());
 		Home home = new Home();
-	
+		
 	}
 }

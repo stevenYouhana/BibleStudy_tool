@@ -21,10 +21,11 @@ public class Home extends JFrame implements Runnable {
 	
 	final String COMMENTARY = "enter your comments...";
 	final String VERSE	=	"Write the actual verse...";
-	
+	static private int selBook_I = 0;
 	JFrame frame = new JFrame("Home");
 	//Add
 	JButton btnAddVerse = new JButton("add verse");
+	JButton btnAddComment = new JButton("add comment");
 	JTextField txtCh = new JTextField("Ch");
 	JTextField txtVNum = new JTextField("Verse Number");
 	JTextArea txtCommentary = new JTextArea(COMMENTARY);
@@ -40,9 +41,9 @@ public class Home extends JFrame implements Runnable {
 	//existing
 	Listing l = new Listing();
 	LoadedVerses loadedVerses = new LoadedVerses();
-	
+	static Book selectedBook = null;
 	public Home() {
-		this.run();
+		this.run();//take to main
 	}
 	@Override
 	public void run() {
@@ -54,6 +55,7 @@ public class Home extends JFrame implements Runnable {
 		pnlWst.add(l.books);
 		pnlNorth.add(loadedVerses.scrl);
 		pnlSth.add(btnAddVerse);
+		pnlSth.add(btnAddComment);
 		pnlSth.add(txtCh);
 		pnlSth.add(txtVNum);
 		pnlNorth.setSize(700, 700);
@@ -63,15 +65,27 @@ public class Home extends JFrame implements Runnable {
 		super.getContentPane().add(pnlSth, BorderLayout.SOUTH);
 		super.getContentPane().add(pnlWst, BorderLayout.WEST);
 		super.getContentPane().add(pnlEst, BorderLayout.EAST);
+		l.books.setSelectedIndex(0);
+		//BUTTONS ACTION
 		btnAddVerse.addActionListener(new ActionListener() {
 			@Override
 			public void actionPerformed(ActionEvent e) {
 				System.out.println("Managing Book");
-				BIBLE.selectBook(l.selectedTitle).manageBook(
+				selectedBook.manageBook(
 						Integer.parseInt(txtCh.getText()),
 						Integer.parseInt(txtVNum.getText()),
 						txtActualVerse.getText());
-				if()
+			}
+		});
+		btnAddComment.addActionListener(new ActionListener() {
+			@Override
+			public void actionPerformed(ActionEvent e) {
+				System.out.println("finding :"+
+						loadedVerses.selVerseCode);				
+				if(!(txtCommentary.equals(COMMENTARY))) {
+					BIBLE.getBooks()[selBook_I].findVerse(loadedVerses.selVerseCode).
+					setComment(txtCommentary.getText());
+				}
 			}
 		});
 		super.pack();
@@ -81,12 +95,7 @@ public class Home extends JFrame implements Runnable {
 	}
 	protected static class AddNotes {
 		
-		Book book = new Book();
-		public void add(Listing l) {
-			//click select
-			book = l.getBook(l.getSelectedTitle());
-			System.out.println("MANAGING: "+book.getTitle());
-		}
+		
 	}
 	protected class Listing implements ListSelectionListener {
 		String selectedTitle = "";
@@ -103,9 +112,7 @@ public class Home extends JFrame implements Runnable {
 			}
 			return model;
 		}
-		public String getSelectedTitle() {
-			return selectedTitle;
-		}
+
 		protected Book getBook(String book) {
 			int count = 0;
 			while(count<66) {
@@ -119,29 +126,37 @@ public class Home extends JFrame implements Runnable {
 		//find selected value
 		@Override
 		public void valueChanged(ListSelectionEvent arg0) {
-			selectedTitle = books.getSelectedValue();
-			System.out.println("CHANGE: "+books.getSelectedValue());
-			loadedVerses.updateList(BIBLE.selectBook(books.getSelectedValue()));
+			if(BIBLE.getBooks()[selBook_I] != null) {
+				selectedBook = BIBLE.getBooks()[selBook_I];
+				System.out.println("CHANGE: "+books.getSelectedValue());
+				loadedVerses.updateList(BIBLE.selectBook(books.getSelectedValue()));
+				selBook_I = books.getSelectedIndex();
+			}
 		}
 	
 	}
 	protected class LoadedVerses implements ListSelectionListener {
 		JList<String> verses = new JList<String>();
 		JScrollPane scrl = new JScrollPane(verses);
+		String selVerseCode = "";
+		String[] verseCodes = null;
 		private Book book =  new Book();
 		{
 			verses.setPreferredSize(new Dimension(400,100));
 			scrl.setPreferredSize(new Dimension(400,100));
 			book = BIBLE.getBooks()[0];	//default to Genesis
 			updateList(book);
-			System.out.println("Loading...");
-			
+			verses.addListSelectionListener(this);
 		}
 		protected void updateList(Book b) {
 			DefaultListModel<String> model = new DefaultListModel<String>();
+			verseCodes = new String[b.getVerses().size()];
+			int i = 0;
 			for(Study.Verse v : b.getVerses()) {
 				System.out.println("DETAILS: "+v.getDetails());
 				model.addElement(v.getDetails());
+				verseCodes[i] = v.getVerseCode();
+				i++;
 			}
 			verses.setModel(model);
 		}
@@ -149,6 +164,24 @@ public class Home extends JFrame implements Runnable {
 		@Override
 		public void valueChanged(ListSelectionEvent arg0) {
 			System.out.println("verse selected..");
+			if(verses.getSelectedIndex() != -1) {
+				selVerseCode = verseCodes[verses.getSelectedIndex()];
+			}
+			try {
+				
+				if((verses.getSelectedIndex() != -1)
+						&& !(selectedBook.findVerse(verseCodes[verses.getSelectedIndex()]).equals(""))) {
+					txtCommentary.setText(selectedBook.findVerse(
+							verseCodes[verses.getSelectedIndex()]).getCommentary());
+				}
+			}
+			catch(ArrayIndexOutOfBoundsException aioobe) {
+				System.out.println("ERR: "+aioobe);
+			}
+			catch(Exception e) {
+				System.out.println("Unkown ERR: "+e); 
+			}
+
 		}
 	}
 	

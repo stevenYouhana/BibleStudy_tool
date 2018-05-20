@@ -25,4 +25,12 @@ public class Book {
 	public ArrayList<Verse> getVerses(){
 		return verses;
 	}
+	public Verse findVerse(String verseCode) {
+		for(Verse verse : verses) {
+			if(verse.getVerseCode().equals(verseCode)) {
+				return verse;
+			}
+		}
+		return null;
+	}
 }

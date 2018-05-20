@@ -3,24 +3,27 @@ package Study;
 import java.util.ArrayList;
 
 public class Verse {
-	
+	int[][] verseData = new int[1][2];
+	private String verseCode = "";
 	private String actualVerse = "";
 	private String commentary = "";
 	private ArrayList<String> references = new ArrayList<>();
-	private ArrayList<Integer> data = new ArrayList<Integer>();
 	
 	protected Verse(int ch, int vNum, String actualVerse, String commentary) {
-		this.data.add(ch, vNum);
+		this.verseData[0][0] = ch;
+		this.verseData[0][1] = vNum;
 		this.actualVerse = actualVerse;
 		this.commentary = commentary;
+		verseCode = verseData[0][0]+": "+verseData[0][1];
 	}
 	protected Verse(int ch, int vNum, String actualVerse) {
-		this.data.add(ch, vNum);
-		
+		this.verseData[0][0] = ch;
+		this.verseData[0][1] = vNum;
 		this.actualVerse = actualVerse;
+		verseCode = verseData[0][0]+": "+verseData[0][1];
 	}
 	public String getDetails() {
-		return ch+": "+vNum+" \""+actualVerse+"\""+"\n"+commentary;
+		return verseData[0][0]+": "+verseData[0][1]+" \""+actualVerse+"\""+"\n"+commentary;
 	}
 	public void setComment(String yourComments) {
 		commentary = yourComments;
@@ -28,7 +31,10 @@ public class Verse {
 	public void addReferences(String ref) {
 		references.add(ref);
 	}
-	public int[][] verseCode(String data){
-		int[][]
+	public String getVerseCode(){
+		return verseCode;
+	}
+	public String getCommentary() {
+		return commentary;
 	}
 }
