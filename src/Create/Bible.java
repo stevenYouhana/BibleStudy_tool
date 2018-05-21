@@ -25,9 +25,6 @@ public class Bible {
 		return instant;
 	}
 
-	public void editNotes() {
-		System.out.println(books[1].getTitle());
-	}
 	//reviewing all books
 	public Book reviewBooks() {
 		int i = 0;

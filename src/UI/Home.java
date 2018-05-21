@@ -22,6 +22,9 @@ public class Home extends JFrame implements Runnable {
 	final String COMMENTARY = "enter your comments...";
 	final String VERSE	=	"Write the actual verse...";
 	static private int selBook_I = 0;
+	//existing
+	Listing l = new Listing();
+	LoadedVerses loadedVerses = new LoadedVerses();
 	JFrame frame = new JFrame("Home");
 	//Add
 	JButton btnAddVerse = new JButton("add verse");
@@ -30,6 +33,7 @@ public class Home extends JFrame implements Runnable {
 	JTextField txtVNum = new JTextField("Verse Number");
 	JTextArea txtCommentary = new JTextArea(COMMENTARY);
 	JScrollPane scrCommentary = new JScrollPane(txtCommentary);
+	JScrollPane scrBooks = new JScrollPane(l.books);
 	JTextArea txtActualVerse = new JTextArea(VERSE);
 
 	
@@ -38,9 +42,8 @@ public class Home extends JFrame implements Runnable {
 	JPanel pnlSth = new JPanel();
 	JPanel pnlEst = new JPanel();
 	JPanel pnlWst = new JPanel();
-	//existing
-	Listing l = new Listing();
-	LoadedVerses loadedVerses = new LoadedVerses();
+	
+
 	static Book selectedBook = null;
 	public Home() {
 		this.run();//take to main
@@ -51,20 +54,20 @@ public class Home extends JFrame implements Runnable {
 		txtCh.setPreferredSize(new Dimension(100,30));
 		txtVNum.setPreferredSize(new Dimension(100,30));
 		txtActualVerse.setPreferredSize(new Dimension(400,200));
+		scrBooks.setPreferredSize(new Dimension(100,100));
 		scrCommentary.setPreferredSize(new Dimension(400,200));
-		pnlWst.add(l.books);
+		pnlNorth.add(scrBooks);
 		pnlNorth.add(loadedVerses.scrl);
 		pnlSth.add(btnAddVerse);
-		pnlSth.add(btnAddComment);
+		pnlNorth.add(scrCommentary);
+		pnlNorth.add(btnAddComment);
 		pnlSth.add(txtCh);
 		pnlSth.add(txtVNum);
-		pnlNorth.setSize(700, 700);
 		pnlSth.add(txtActualVerse);
-		pnlSth.add(scrCommentary);
 		super.getContentPane().add(pnlNorth, BorderLayout.NORTH);
 		super.getContentPane().add(pnlSth, BorderLayout.SOUTH);
-		super.getContentPane().add(pnlWst, BorderLayout.WEST);
-		super.getContentPane().add(pnlEst, BorderLayout.EAST);
+		//super.getContentPane().add(pnlWst, BorderLayout.WEST);
+		//super.getContentPane().add(pnlEst, BorderLayout.EAST);
 		l.books.setSelectedIndex(0);
 		//BUTTONS ACTION
 		btnAddVerse.addActionListener(new ActionListener() {
@@ -81,10 +84,15 @@ public class Home extends JFrame implements Runnable {
 			@Override
 			public void actionPerformed(ActionEvent e) {
 				System.out.println("finding :"+
-						loadedVerses.selVerseCode);				
-				if(!(txtCommentary.equals(COMMENTARY))) {
-					BIBLE.getBooks()[selBook_I].findVerse(loadedVerses.selVerseCode).
-					setComment(txtCommentary.getText());
+						loadedVerses.selVerseCode);
+				try {
+					if(!(txtCommentary.equals(COMMENTARY))) {
+						BIBLE.getBooks()[selBook_I].findVerse(loadedVerses.selVerseCode).
+						setComment(txtCommentary.getText());
+					}
+				}
+				catch(NullPointerException npe) {
+					System.out.println("Please select a verse to comment on.");
 				}
 			}
 		});
@@ -167,16 +175,22 @@ public class Home extends JFrame implements Runnable {
 			if(verses.getSelectedIndex() != -1) {
 				selVerseCode = verseCodes[verses.getSelectedIndex()];
 			}
-			try {
-				
+			try {		
 				if((verses.getSelectedIndex() != -1)
-						&& !(selectedBook.findVerse(verseCodes[verses.getSelectedIndex()]).equals(""))) {
+						&& !(selectedBook.findVerse(verseCodes[verses.getSelectedIndex()]).equals(""))
+						&& !(selectedBook.findVerse(verseCodes[verses.getSelectedIndex()]).getCommentary().equals(""))) {
 					txtCommentary.setText(selectedBook.findVerse(
 							verseCodes[verses.getSelectedIndex()]).getCommentary());
+				}
+				else {
+					txtCommentary.setText(COMMENTARY);
 				}
 			}
 			catch(ArrayIndexOutOfBoundsException aioobe) {
 				System.out.println("ERR: "+aioobe);
+			}
+			catch(NullPointerException npe) {
+				System.out.println("ERR: "+npe+"\nPlease select a book");
 			}
 			catch(Exception e) {
 				System.out.println("Unkown ERR: "+e); 

@@ -24,7 +24,7 @@ public class main {
 		b.selectBook("Mathew").manageBook(4, 7, "Jesus responded, The Scriptures also say, 'You must not test the LORD your God.");
 		b.selectBook("Mathew").manageBook(21, 2, " saying to them, “Go to the village ahead of you, and at once you will find a donkey tied there, with her colt by her. Untie them and bring them to me.");
 		b.selectBook("Genesis").manageBook(1, 15, "And evening passed and morning came, marking the fifth day");
-		b.selectBook("Mathew").getVerses().get(0).setComment("my comments...");
+
 		System.out.println(b.selectBook("Mathew").getVerses().get(0).getDetails());
 		Home home = new Home();
 		
