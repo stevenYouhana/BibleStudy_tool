@@ -13,9 +13,9 @@ public class Bible {
 	}
 	//load all books
 	{
-		books[0] = new Book("Genesis",true);
-		books[1] = new Book("Exodus",true);
-		books[2] = new Book("Mathew",false);
+		books[0] = new Book("Genesis",Book.Testament.OLD);
+		books[1] = new Book("Exodus",Book.Testament.OLD);
+		books[2] = new Book("Mathew",Book.Testament.OLD);
 	}
 	
 	public static Bible getInstant(){

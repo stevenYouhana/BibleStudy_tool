@@ -3,15 +3,18 @@ package Study;
 import java.util.ArrayList;
 
 public class Book {
+	public enum Testament {
+		OLD,NEW
+	}
 	String title = "";
-	boolean old = false;
 	//not using chapters
 	ArrayList<Chapter> chapters = new ArrayList<>();
 	ArrayList<Verse> verses = new ArrayList<>();
+	public static Testament testament = null;
 	
-	public Book(String title, boolean old) {
+	public Book(String title, Testament testament) {
 		this.title = title;
-		this.old = old;
+		this.testament = testament;
 	}
 	public Book() {
 		

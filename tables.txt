@@ -1,0 +1,31 @@
+Book:
+	book_ID		int	
+	booktitle	VARCHAR
+	old		BOOL
+
+	
+Verse:
+	chapter		int
+	vnum		int
+	bookTitle	VARCHAR
+	
+
+Point_Verse
+	verse_ID	int
+	chapter		int
+	vnum		int
+	book_ID		int
+	comment		string?
+
+
+Verse_Point
+	verse_ID	int
+	pointer_ID	int
+
+
+Pointer
+	pointer_ID	int
+	chapter		int
+	vnum		int	
+	book_ID		int
+	
