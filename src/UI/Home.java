@@ -77,6 +77,7 @@ public class Home extends JFrame implements Runnable {
 		btnAddVerse.addActionListener(new ActionListener() {
 			@Override
 			public void actionPerformed(ActionEvent e) {
+				db.addVerse(selectedBook.getTitle(),txtCh.getText(),txtVNum.getText());
 				System.out.println("Managing Book");
 				selectedBook.manageBook(
 						Integer.parseInt(txtCh.getText()),
@@ -113,18 +114,9 @@ public class Home extends JFrame implements Runnable {
 		String selectedTitle = "";
 		JList<String> books = new JList<String>();
 		{
-			//books.setModel(getBooksModel());
-			//db.testdb();
 			books.setModel(DB_Ops.getBooksModel());
 			books.addListSelectionListener(this);
 			System.out.println("STAT BLOCK");
-		}
-		protected DefaultListModel<String> getBooksModel() {
-			DefaultListModel<String> model = new DefaultListModel<String>();
-			for (int i=0; i<3; i++) {	//CHANGE NUMBER TO BOOKS ADDED!
-				model.addElement(BIBLE.getBooks()[i].getTitle());
-			}
-			return model;
 		}
 
 		protected Book getBook(String book) {
