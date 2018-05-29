@@ -8,8 +8,10 @@ import java.awt.event.ActionListener;
 import javax.swing.*;
 import javax.swing.event.ListSelectionEvent;
 import javax.swing.event.ListSelectionListener;
+
+import Aquire.DB_Ops;
+import Study.Bible;
 import Study.Book;
-import Create.Bible;
 
 public class Home extends JFrame implements Runnable {
 	/**
@@ -43,6 +45,8 @@ public class Home extends JFrame implements Runnable {
 	JPanel pnlEst = new JPanel();
 	JPanel pnlWst = new JPanel();
 	
+	//DATABASE
+	DB_Ops db = new DB_Ops();
 
 	static Book selectedBook = null;
 	public Home() {
@@ -109,7 +113,9 @@ public class Home extends JFrame implements Runnable {
 		String selectedTitle = "";
 		JList<String> books = new JList<String>();
 		{
-			books.setModel(getBooksModel());
+			//books.setModel(getBooksModel());
+			//db.testdb();
+			books.setModel(DB_Ops.getBooksModel());
 			books.addListSelectionListener(this);
 			System.out.println("STAT BLOCK");
 		}

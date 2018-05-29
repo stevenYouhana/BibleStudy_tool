@@ -3,6 +3,7 @@ import Create.Writer;
 import Study.Book;
 import Create.Reader;
 import Create.Task;
+import Aquire.DB_Ops;
 import Aquire.User;
 import UI.Home;
 
@@ -16,7 +17,7 @@ public class main {
 		//User user = new User('r');
 		//Task task = user.usage();
 		//task.doTask();
-		Create.Bible b = Create.Bible.getInstant();
+		Study.Bible b = Study.Bible.getInstant();
 		//select
 		//b.manageBook("Genesis");
 		//review all
@@ -25,7 +26,8 @@ public class main {
 		b.selectBook("Mathew").manageBook(21, 2, " saying to them, “Go to the village ahead of you, and at once you will find a donkey tied there, with her colt by her. Untie them and bring them to me.");
 		b.selectBook("Genesis").manageBook(1, 15, "And evening passed and morning came, marking the fifth day");
 
-		System.out.println(b.selectBook("Mathew").getVerses().get(0).getDetails());
+		DB_Ops db = new DB_Ops();
+		db.testdb();
 		Home home = new Home();
 		
 	}

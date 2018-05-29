@@ -1,7 +1,5 @@
-package Create;
+package Study;
 import java.util.ArrayList;
-
-import Study.Book;
 
 public class Bible {
 	private static Bible instant = null;

@@ -14,7 +14,7 @@ public class Book {
 	
 	public Book(String title, Testament testament) {
 		this.title = title;
-		this.testament = testament;
+		Book.testament = testament;
 	}
 	public Book() {
 		
