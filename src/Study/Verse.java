@@ -5,8 +5,9 @@ import java.util.ArrayList;
 public class Verse {
 	int[][] verseData = new int[1][2];
 	private String verseCode = "";
-	private String actualVerse = "";
+	private int id = 0;
 	private String commentary = "";
+	private String actualVerse = "";
 	private ArrayList<String> references = new ArrayList<>();
 	
 	protected Verse(int ch, int vNum, String actualVerse, String commentary) {
@@ -16,7 +17,7 @@ public class Verse {
 		this.commentary = commentary;
 		verseCode = verseData[0][0]+": "+verseData[0][1];
 	}
-	protected Verse(int ch, int vNum, String actualVerse) {
+	public Verse(int ch, int vNum, String actualVerse) {
 		this.verseData[0][0] = ch;
 		this.verseData[0][1] = vNum;
 		this.actualVerse = actualVerse;
