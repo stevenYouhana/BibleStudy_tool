@@ -17,6 +17,7 @@ CREATE TABLE material.Verse(
 	chapter INT NOT NULL,
 	vnum INT NOT NULL,
 	booknum INT REFERENCES material.Book(booknum) NOT NULL,
+	verse VARCHAR NOT NULL,
 	comment VARCHAR NULL
 	);
 
@@ -50,6 +51,3 @@ BEGIN
 END
 $BODY$
 LANGUAGE 'plpgsql' VOLATILE;
-
-SELECT popOldTstBooks('Genesis');
-SELECT popNewTstBooks('Mathew');
