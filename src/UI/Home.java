@@ -4,6 +4,8 @@ import java.awt.Dimension;
 import java.awt.BorderLayout;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
 
 import javax.swing.*;
 import javax.swing.event.ListSelectionEvent;
@@ -12,6 +14,8 @@ import javax.swing.event.ListSelectionListener;
 import Aquire.DB_Ops;
 import Study.Bible;
 import Study.Book;
+import Study.Verse;
+import Study.Bible.Book_Comments;
 
 public class Home extends JFrame implements Runnable {
 	/**
@@ -23,8 +27,10 @@ public class Home extends JFrame implements Runnable {
 	
 	final String COMMENTARY = "enter your comments...";
 	final String VERSE	=	"Write the actual verse...";
+	int[] generateVerseCode = new int[3];
 	static private int selBook_I = 0;
 	final Bible.Book_Verses BOOK_VERSES = new Bible.Book_Verses();
+	final Bible.Book_Comments BOOK_COMMENTS = new Bible.Book_Comments();
 	//existing
 	BookListing bl = new BookListing();
 	LoadedVerses loadedVerses = new LoadedVerses();
@@ -54,11 +60,11 @@ public class Home extends JFrame implements Runnable {
 	}
 	@Override
 	public void run() {
-		super.setSize(700, 700);
+		super.setSize(900, 1000);
 		txtCh.setPreferredSize(new Dimension(100,30));
 		txtVNum.setPreferredSize(new Dimension(100,30));
 		txtActualVerse.setPreferredSize(new Dimension(400,200));
-		scrBooks.setPreferredSize(new Dimension(100,100));
+		scrBooks.setPreferredSize(new Dimension(100,300));
 		scrCommentary.setPreferredSize(new Dimension(400,200));
 		pnlNorth.add(scrBooks);
 		pnlNorth.add(loadedVerses.scrl);
@@ -73,6 +79,7 @@ public class Home extends JFrame implements Runnable {
 		//super.getContentPane().add(pnlWst, BorderLayout.WEST);
 		//super.getContentPane().add(pnlEst, BorderLayout.EAST);
 		BOOK_VERSES.initVerses();
+		BOOK_COMMENTS.initComments();
 		bl.books.setSelectedIndex(0);
 		//BUTTONS ACTION
 		btnAddVerse.addActionListener(new ActionListener() {
@@ -83,24 +90,30 @@ public class Home extends JFrame implements Runnable {
 						Integer.parseInt(txtCh.getText()),
 						Integer.parseInt(txtVNum.getText()),
 						txtActualVerse.getText()
-				);
+						);
 				//now update the java array
 				BIBLE.selectBook(selectedBook.getTitle()).
-					updateVerses(Integer.parseInt(txtCh.getText()),
+					updateVerses(selectedBook.getBooknum(),
+							Integer.parseInt(txtCh.getText()),
 							Integer.parseInt(txtVNum.getText()),
-							txtActualVerse.getText());
+							txtActualVerse.getText()
+							);
 			}
 		});
 		btnAddComment.addActionListener(new ActionListener() {
 			@Override
 			public void actionPerformed(ActionEvent e) {
+				Book book =  new Book();
 				try {
 					if(!(txtCommentary.equals(COMMENTARY))) {
-						//ADD CODE
+						db.addComment(txtCommentary.getText(), book.findVerse(generateVerseCode));
 					}
 				}
 				catch(NullPointerException npe) {
 					System.out.println("Please select a verse to comment on.");
+				}
+				catch(Exception ex) {
+					System.out.println(ex);
 				}
 			}
 		});
@@ -119,7 +132,6 @@ public class Home extends JFrame implements Runnable {
 		{
 			books.setModel(DB_Ops.GET_BOOKS_MODEL());
 			books.addListSelectionListener(this);
-			System.out.println("STAT BLOCK");
 		}
 
 		//find selected value
@@ -138,44 +150,64 @@ public class Home extends JFrame implements Runnable {
 		JScrollPane scrl = new JScrollPane(verses);
 		private Book book =  new Book();
 		{
-			verses.setPreferredSize(new Dimension(400,100));
-			scrl.setPreferredSize(new Dimension(400,100));
-//			book = BIBLE.getBooks()[0];	//default to Genesis
+			verses.setPreferredSize(new Dimension(400,200));
+			scrl.setPreferredSize(new Dimension(400,200));
+			book = BIBLE.getBooks()[0];	//default to Genesis
 			updateList(book);
 			verses.addListSelectionListener(this);
 		}
 		protected void updateList(Book b) {
 			DefaultListModel<String> model = new DefaultListModel<String>();
-			int i = 0;
 			for(Study.Verse v : b.getVerses()) {
-				model.addElement(v.getDetails());
-				i++;
+				model.addElement(v.getVerseStack());
 			}
 			verses.setModel(model);
 		}
-		
+		class VerseData {
+			String verse = null;
+			public VerseData(String verse) {
+				this.verse = verse;
+			}
+								//		"###: ### "
+			private final String DATA = "^(\\d){1,3}[:]\\s(\\d){1,3}\\s";
+			private Pattern pattern = Pattern.compile(DATA);
+			Matcher matcher;
+			public void setData() {
+				if(verse != null) {
+					matcher = pattern.matcher(verse);
+				}
+				if(matcher.find()) {
+					generateVerseCode[0] = selectedBook.getBooknum();
+					generateVerseCode[1] = Integer.parseInt(matcher.group(1));
+					generateVerseCode[2] = Integer.parseInt(matcher.group(0).toString().substring(
+							matcher.group(0).toString().indexOf(':')+2,
+							matcher.group(0).toString().length()-1));
+				}
+			}
+		}
+		VerseData vd; 
 		@Override
 		public void valueChanged(ListSelectionEvent arg0) {
-			System.out.println("verse selected..");
-			try {		
+			try {	
 				if(verses.getSelectedIndex() != -1) {
-					//ADD CODE
+					vd = new VerseData(verses.getSelectedValue());
+					vd.setData();
 				}
 				else {
 					txtCommentary.setText(COMMENTARY);
 				}
 			}
 			catch(ArrayIndexOutOfBoundsException aioobe) {
-				System.out.println("ERR: "+aioobe);
+				System.out.println("ERR: aioobe"+aioobe);
 			}
 			catch(NullPointerException npe) {
 				System.out.println("ERR: "+npe+"\nPlease select a book");
 			}
 			catch(Exception e) {
-				System.out.println("Unkown ERR: "+e); 
+					System.out.println("Unkown ERR e: "+e); 
 			}
-
 		}
+	
 	}
 	
 }

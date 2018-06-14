@@ -1,14 +1,10 @@
 package Study;
 
 import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.Map;
+import java.util.Arrays;
 import java.util.concurrent.atomic.AtomicInteger;
 
-import Aquire.DB_Ops;
-
 public class Book {
-	DB_Ops db = new DB_Ops();
 	
 	public enum Testament {
 		OLD,NEW
@@ -16,7 +12,7 @@ public class Book {
 	String title = "";
 	private final static AtomicInteger COUNTER = new AtomicInteger(0);
 	private final int booknum;
-	private ArrayList<Verse> verses = new ArrayList<>();
+	private ArrayList<Verse> verses = new ArrayList<>(100); //LinkedList?
 	public static Testament testament = null;
 	
 	public Book(String title, Testament testament) {
@@ -36,11 +32,19 @@ public class Book {
 	public void setVerses(ArrayList<Verse> verses) {
 		this.verses = verses;
 	}
-	public void updateVerses(int ch, int vNum, String actualVerse) {
-		verses.add(new Verse(ch, vNum, actualVerse));
+	public void updateVerses(int book, int ch, int vNum, String actualVerse) {
+		verses.add(new Verse(book, ch, vNum, actualVerse));
 	}
 	public ArrayList<Verse> getVerses(){
 		return verses;
+	}
+	public Verse findVerse(int[] verseCode) {
+		for(Verse v : verses) {
+			if(Arrays.equals(v.getVerseData(), verseCode)) {
+				return v;
+			}
+		}
+		return null;
 	}
 	public Verse findVerse(String verseCode) {
 		for(Verse verse : verses) {

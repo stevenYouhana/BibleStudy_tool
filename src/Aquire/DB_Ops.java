@@ -1,5 +1,6 @@
 package Aquire;
 import java.sql.Connection;
+import java.sql.PreparedStatement;
 import java.sql.SQLException;
 import java.sql.Statement;
 import java.sql.ResultSet;
@@ -27,23 +28,24 @@ public class DB_Ops{
 				return testiment;
 			}
 		};
-		Study.Book[] books = new Study.Book[3];
+		Book[] books = new Book[Bible.NUM];
 		Testiment testiment = new Testiment();
 		try(Connection con = DB_Connector.connect()){
 			Statement stmt = con.createStatement();
 			ResultSet rs = stmt.executeQuery("SELECT * FROM material.Book;");
 			int count = 0;
 			while(rs.next()) {
-				books[count] = new Study.Book(rs.getString("booktitle"),
+				if(count == 66) break;
+				books[count] = new Book(rs.getString("booktitle"),
 						testiment.getTestiment(rs.getString("testament")));
 				count++;
 			}
 		}
 		catch(SQLException sqle) {
-			
+			System.out.println("GET_BOOKS: "+sqle);
 		}
 		catch(Exception e) {
-			
+			System.out.println("GET_BOOKS: "+e);
 		}
 		return books;
 	}
@@ -57,10 +59,10 @@ public class DB_Ops{
 			}
 		}
 		catch(SQLException sqle) {
-			
+			System.out.println("GET_BOOKS_MODEL: "+sqle);
 		}
 		catch(Exception e) {
-			
+			System.out.println("GET_BOOKS_MODEL");
 		}
 		return model;
 	}
@@ -71,7 +73,7 @@ public class DB_Ops{
 			ResultSet rs = stmt.executeQuery(
 					"SELECT * FROM material.Verse WHERE booknum = '"+b.getBooknum()+"';");
 			while(rs.next()) {
-				verses.add(new Verse(rs.getInt("chapter"),
+				verses.add(new Verse(b.getBooknum(),rs.getInt("chapter"),
 						rs.getInt("vnum"),rs.getString("verse")));
 			}
 		}
@@ -95,7 +97,6 @@ public class DB_Ops{
 		}
 		String sql = "INSERT INTO material.Verse (chapter,vnum,booknum,verse) VALUES("
 				+ ch+","+vnum+","+booknum+", '"+actualVerse+"');";
-		System.out.println("CH: "+ch+"\tvnum: "+vnum+"\tbooknum: "+booknum);
 		try(Connection con = DB_Connector.connect()){
 			Statement stmt = con.createStatement(ResultSet.
                     TYPE_SCROLL_INSENSITIVE, ResultSet.CONCUR_UPDATABLE);
@@ -107,6 +108,51 @@ public class DB_Ops{
 		}
 		catch(Exception e) {
 			System.out.println(e);
-		}		
+		}	
+	}
+	public void initComments(Map<String,String> map) {
+		String sql = "SELECT * FROM material.Verse;";
+		map = new HashMap<String,String>(50,50);
+		System.out.println("PASS map");
+		try(Connection con  = DB_Connector.connect()){
+			Statement stmt = con.createStatement();
+			ResultSet rs = stmt.executeQuery(sql);
+			while(rs.next()) {
+				if(rs.getString("comment") == null) break;
+				else if(!(rs.getString("comment").isEmpty())) continue;
+				map.put(
+						rs.getInt("booknum")+":"+
+						rs.getInt("chapter")+":"+
+						rs.getInt("vnum"),
+						rs.getString("comment")
+				);
+			}
+		}
+		catch(SQLException sqle) {
+			System.out.println("initComments sql: "+sqle);
+		}
+		catch(Exception e) {
+			System.out.println("initComments e: "+e);
+		}
+	}
+	public void addComment(String comment, Verse verse) {	
+		String sql = "SELECT * FROM material.Verse WHERE booknum = ? "
+				+ "AND chapter = ? AND vnum = ?"
+				+ "	THEN INSERT INTO material.Verse (comment) VALUES(?);";
+		if(!(comment.isEmpty() || verse == null))
+		try(PreparedStatement pstmt  = DB_Connector.connect().prepareStatement(sql)){
+			pstmt.setInt(1, verse.getVerseData()[0]);
+			pstmt.setInt(2, verse.getVerseData()[1]);
+			pstmt.setInt(3,verse.getVerseData()[2]);
+			pstmt.setString(4, comment);
+			pstmt.executeUpdate(sql);
+		}
+		catch(SQLException sqle) {
+			System.out.println(sqle);
+		}
+		catch(Exception e) {
+			System.out.println(e);
+		}
+		System.out.println("added "+verse.getCommentary());
 	}
 }
