@@ -1,17 +1,19 @@
 package Study;
 
-import java.util.ArrayList;
+import java.util.LinkedList;
 
 public class Verse {
+	int parent_verse;
 	int[] verseData = new int[3];
 	private String verseCode;
 	private String commentary;
 	private String actualVerse;
-	private ArrayList<String> references = new ArrayList<>();
+	private LinkedList<int[]> references = new LinkedList<int[]>();
 	
 	protected Verse(int book, int ch, int vNum, String actualVerse, String commentary) {
 		this(book,ch,vNum,actualVerse);
 		this.commentary = commentary;
+		parent_verse = -1;	//no verse
 	}
 	public Verse(int book, int ch, int vNum, String actualVerse) {
 		this.verseData[0] = book;
@@ -32,8 +34,8 @@ public class Verse {
 	public void setComment(String yourComments) {
 		commentary = yourComments;
 	}
-	public void addReferences(String ref) {
-		references.add(ref);
+	public void addReferences(int[] verseData) {
+		references.add(verseData);
 	}
 	public String getVerseCode(){
 		return verseCode;
@@ -41,4 +43,8 @@ public class Verse {
 	public String getCommentary() {
 		return commentary;
 	}
+	public void setParentVerse(int id) {
+		parent_verse = id;
+	}
+	
 }

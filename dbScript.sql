@@ -1,9 +1,9 @@
 \c biblestudy
 DROP SCHEMA material CASCADE;
-DROP FUNCTION popOldTstBooks;
-DROP FUNCTION popNewTstBooks;
+DROP FUNCTION popOldTstBooks CASCADE;
+DROP FUNCTION popNewTstBooks CASCADE;
 CREATE SCHEMA material;
-DROP TYPE TESTAMENT;
+DROP TYPE TESTAMENT CASCADE;
 CREATE TYPE TESTAMENT AS ENUM('old','new');
 
 CREATE TABLE material.Book(
@@ -18,19 +18,10 @@ CREATE TABLE material.Verse(
 	vnum INT NOT NULL,
 	booknum INT REFERENCES material.Book(booknum) NOT NULL,
 	verse VARCHAR NOT NULL,
-	comment VARCHAR NULL
+	comment VARCHAR NULL,
+	parent_verse INT
 	);
 
-CREATE TABLE material.Pointer(
-	pointer_ID SERIAL PRIMARY KEY,
-	verse_ID INT REFERENCES material.Verse(verse_ID),
-	booknum INT REFERENCES material.Book(booknum)	
-	);
-
-CREATE TABLE material.Verse_Point(
-	pointer_ID INT REFERENCES material.Pointer(pointer_ID), 
-	verse_ID INT REFERENCES material.Verse(verse_ID)
-	);
 
 CREATE FUNCTION popOldTstBooks(book VARCHAR)
 RETURNS void AS

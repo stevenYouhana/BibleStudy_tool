@@ -9,7 +9,7 @@ public class Book {
 	public enum Testament {
 		OLD,NEW
 	}
-	String title = "";
+	String title = null;
 	private final static AtomicInteger COUNTER = new AtomicInteger(0);
 	private final int booknum;
 	private ArrayList<Verse> verses = new ArrayList<>(100); //LinkedList?
@@ -32,8 +32,18 @@ public class Book {
 	public void setVerses(ArrayList<Verse> verses) {
 		this.verses = verses;
 	}
-	public void updateVerses(int book, int ch, int vNum, String actualVerse) {
-		verses.add(new Verse(book, ch, vNum, actualVerse));
+	public void updateVerses(int book, int ch, int vnum, String actualVerse) {
+		int[] newVerse = new int[]{book,ch,vnum};
+		for(Verse v : verses) {
+			if(Arrays.equals(newVerse, v.verseData)) {
+				//ERROR MESSAGE
+				System.out.println("Verse already added!");
+				return;
+			}
+		}
+		verses.add(new Verse(book, ch, vnum, actualVerse));
+		Bible.Referencing referencing = new Bible.Referencing(newVerse);
+		referencing.addVerse();
 	}
 	public ArrayList<Verse> getVerses(){
 		return verses;

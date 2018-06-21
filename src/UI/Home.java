@@ -14,8 +14,6 @@ import javax.swing.event.ListSelectionListener;
 import Aquire.DB_Ops;
 import Study.Bible;
 import Study.Book;
-import Study.Verse;
-import Study.Bible.Book_Comments;
 
 public class Home extends JFrame implements Runnable {
 	/**
@@ -26,11 +24,12 @@ public class Home extends JFrame implements Runnable {
 	private final static Bible BIBLE = Bible.getInstant();
 	
 	final String COMMENTARY = "enter your comments...";
-	final String VERSE	=	"Write the actual verse...";
-	int[] generateVerseCode = new int[3];
-	static private int selBook_I = 0;
+	final String VERSE = "Write the actual verse...";
+	protected int[] generateVerseCode;
 	final Bible.Book_Verses BOOK_VERSES = new Bible.Book_Verses();
 	final Bible.Book_Comments BOOK_COMMENTS = new Bible.Book_Comments();
+	final Bible.Referencing referencing = new Bible.Referencing();
+	MessageBox msgbox = new MessageBox(this);
 	//existing
 	BookListing bl = new BookListing();
 	LoadedVerses loadedVerses = new LoadedVerses();
@@ -38,13 +37,13 @@ public class Home extends JFrame implements Runnable {
 	//Add
 	JButton btnAddVerse = new JButton("add verse");
 	JButton btnAddComment = new JButton("add comment");
+	JButton btnAddRef = new JButton("add reference");
 	JTextField txtCh = new JTextField("Ch");
 	JTextField txtVNum = new JTextField("Verse Number");
 	JTextArea txtCommentary = new JTextArea(COMMENTARY);
 	JScrollPane scrCommentary = new JScrollPane(txtCommentary);
 	JScrollPane scrBooks = new JScrollPane(bl.books);
 	JTextArea txtActualVerse = new JTextArea(VERSE);
-
 	
 	//panes
 	JPanel pnlNorth = new JPanel();
@@ -81,7 +80,10 @@ public class Home extends JFrame implements Runnable {
 		BOOK_VERSES.initVerses();
 		BOOK_COMMENTS.initComments();
 		bl.books.setSelectedIndex(0);
+		BOOK_COMMENTS.recall();
+		
 		//BUTTONS ACTION
+		
 		btnAddVerse.addActionListener(new ActionListener() {
 			@Override
 			public void actionPerformed(ActionEvent e) {
@@ -98,34 +100,54 @@ public class Home extends JFrame implements Runnable {
 							Integer.parseInt(txtVNum.getText()),
 							txtActualVerse.getText()
 							);
+				//and update verse list
+				loadedVerses.updateList(selectedBook);
 			}
 		});
 		btnAddComment.addActionListener(new ActionListener() {
 			@Override
 			public void actionPerformed(ActionEvent e) {
-				Book book =  new Book();
+				if(BOOK_COMMENTS.exists(generateVerseCode, txtCommentary.getText())) {
+					System.out.println("comment for that verse exists");
+					if(msgbox.existingComment() == 1) {
+						System.out.println("confirm: "+1);
+						return;
+					}
+				}
+				System.out.println("not returned!");
 				try {
-					if(!(txtCommentary.equals(COMMENTARY))) {
-						db.addComment(txtCommentary.getText(), book.findVerse(generateVerseCode));
+					if(!(txtCommentary.equals(COMMENTARY)) || (!(txtCommentary.getText().equals("")))
+							&& generateVerseCode != null) {
+						db.addComment(txtCommentary.getText(), selectedBook.findVerse(generateVerseCode));
+						BOOK_COMMENTS.addComment(generateVerseCode,txtCommentary.getText());
+					}
+					else {
+						System.out.println("Please select a verse to comment on.");
 					}
 				}
 				catch(NullPointerException npe) {
 					System.out.println("Please select a verse to comment on.");
 				}
 				catch(Exception ex) {
-					System.out.println(ex);
+					System.out.println("ex addCommentBTN: "+ex);
 				}
+				BOOK_COMMENTS.recall();
 			}
+		});
+		btnAddRef.addActionListener(new ActionListener() {
+
+			@Override
+			public void actionPerformed(ActionEvent arg0) {
+				System.out.println("TO ADD REF");				
+			}
+			
 		});
 		super.pack();
 		super.setVisible(true);
 		super.setResizable(false);
 		super.setDefaultCloseOperation(DISPOSE_ON_CLOSE);
 	}
-	protected static class AddNotes {
-		
-		
-	}
+
 	protected class BookListing implements ListSelectionListener {
 		String selectedTitle = "";
 		JList<String> books = new JList<String>();
@@ -137,12 +159,13 @@ public class Home extends JFrame implements Runnable {
 		//find selected value
 		@Override
 		public void valueChanged(ListSelectionEvent arg0) {
-			if(BIBLE.getBooks()[selBook_I] != null) {
-				selectedBook = BIBLE.getBooks()[selBook_I];
-				System.out.println("CHANGE: "+books.getSelectedValue());
+			if(BIBLE.getBooks()[books.getSelectedIndex()] != null) {
+				selectedBook = BIBLE.getBooks()[books.getSelectedIndex()];
+				System.out.println("bookNum: "+books.getSelectedValue());
 				loadedVerses.updateList(BIBLE.selectBook(books.getSelectedValue()));
-				selBook_I = books.getSelectedIndex();
+				System.out.println("booknum: "+selectedBook.getBooknum());
 			}
+			generateVerseCode = null;	//reseting verseCode
 		}
 	}
 	protected class LoadedVerses implements ListSelectionListener {
@@ -165,18 +188,20 @@ public class Home extends JFrame implements Runnable {
 		}
 		class VerseData {
 			String verse = null;
-			public VerseData(String verse) {
-				this.verse = verse;
-			}
-								//		"###: ### "
+							//			"###: ### "
 			private final String DATA = "^(\\d){1,3}[:]\\s(\\d){1,3}\\s";
 			private Pattern pattern = Pattern.compile(DATA);
 			Matcher matcher;
-			public void setData() {
+			
+			public VerseData(String verse) {
+				this.verse = verse;
 				if(verse != null) {
 					matcher = pattern.matcher(verse);
 				}
+			}
+			public void setData() {
 				if(matcher.find()) {
+					generateVerseCode = new int[3];
 					generateVerseCode[0] = selectedBook.getBooknum();
 					generateVerseCode[1] = Integer.parseInt(matcher.group(1));
 					generateVerseCode[2] = Integer.parseInt(matcher.group(0).toString().substring(
@@ -192,6 +217,7 @@ public class Home extends JFrame implements Runnable {
 				if(verses.getSelectedIndex() != -1) {
 					vd = new VerseData(verses.getSelectedValue());
 					vd.setData();
+					txtCommentary.setText(BOOK_COMMENTS.getVerse(generateVerseCode));
 				}
 				else {
 					txtCommentary.setText(COMMENTARY);

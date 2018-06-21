@@ -110,21 +110,19 @@ public class DB_Ops{
 			System.out.println(e);
 		}	
 	}
-	public void initComments(Map<String,String> map) {
+	public void initComments(Map<int[],String> map) {
 		String sql = "SELECT * FROM material.Verse;";
-		map = new HashMap<String,String>(50,50);
-		System.out.println("PASS map");
+		
 		try(Connection con  = DB_Connector.connect()){
 			Statement stmt = con.createStatement();
 			ResultSet rs = stmt.executeQuery(sql);
 			while(rs.next()) {
-				if(rs.getString("comment") == null) break;
-				else if(!(rs.getString("comment").isEmpty())) continue;
 				map.put(
-						rs.getInt("booknum")+":"+
-						rs.getInt("chapter")+":"+
-						rs.getInt("vnum"),
+						new int[] {
+								rs.getInt("booknum"),rs.getInt("chapter"),rs.getInt("vnum")
+								},
 						rs.getString("comment")
+						
 				);
 			}
 		}
@@ -136,16 +134,18 @@ public class DB_Ops{
 		}
 	}
 	public void addComment(String comment, Verse verse) {	
-		String sql = "SELECT * FROM material.Verse WHERE booknum = ? "
-				+ "AND chapter = ? AND vnum = ?"
-				+ "	THEN INSERT INTO material.Verse (comment) VALUES(?);";
+		String sql = "UPDATE material.Verse"
+				+ "	SET comment = ? "
+				+ "WHERE booknum = ? " + 
+				"AND chapter = ?"
+				+ " AND vnum = ?;";
 		if(!(comment.isEmpty() || verse == null))
 		try(PreparedStatement pstmt  = DB_Connector.connect().prepareStatement(sql)){
-			pstmt.setInt(1, verse.getVerseData()[0]);
-			pstmt.setInt(2, verse.getVerseData()[1]);
-			pstmt.setInt(3,verse.getVerseData()[2]);
-			pstmt.setString(4, comment);
-			pstmt.executeUpdate(sql);
+			pstmt.setString(1, comment);
+			pstmt.setInt(2, verse.getVerseData()[0]);
+			pstmt.setInt(3,verse.getVerseData()[1]);
+			pstmt.setInt(4, verse.getVerseData()[2]);
+			pstmt.executeUpdate();
 		}
 		catch(SQLException sqle) {
 			System.out.println(sqle);
@@ -153,6 +153,44 @@ public class DB_Ops{
 		catch(Exception e) {
 			System.out.println(e);
 		}
-		System.out.println("added "+verse.getCommentary());
+	}
+	public Map<int[],Integer> GET_DATAtoID_MAP() {
+		Map <int[],Integer> map = new HashMap<int[],Integer>();
+		String sql = "SELECT verse_id, booknum, chapter, vnum FROM material.Verse;";
+		try(Connection con = DB_Connector.connect()){
+			Statement stmt = con.createStatement();
+			stmt.execute(sql);
+			ResultSet rs = stmt.getResultSet();
+			while(rs.next()) {
+				map.put(new int[]{rs.getInt("booknum"),
+						rs.getInt("chapter"),
+						rs.getInt("vnum")},
+						rs.getInt("verse_id")
+						);
+			}
+		}
+		catch(SQLException sqle) {
+			System.out.println("addRef: "+sqle);
+		}
+		catch(Exception e) {
+			System.out.println("addRef: "+e);
+		}
+		return map;
+	}
+	
+	public void addParrentVerse(int childID, int parentID) {
+		String sql = "UPDATE material.Verse SET parent_verse = ?"
+				+ "WHERE verse_ID = ?;";
+		try(PreparedStatement stmnt = DB_Connector.connect().prepareStatement(sql)){
+			stmnt.setInt(0, childID);
+			stmnt.setInt(1, parentID);
+			stmnt.executeUpdate();
+		}
+		catch(SQLException sqle) {
+			System.out.println("addParent: sqle"+sqle);
+		}
+		catch(Exception e) {
+			System.out.println("addParent e: "+e);
+		}
 	}
 }

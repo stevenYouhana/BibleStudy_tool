@@ -1,5 +1,6 @@
 package Study;
 
+import java.util.Arrays;
 import java.util.HashMap;
 import java.util.Map;
 
@@ -63,11 +64,99 @@ public class Bible {
 	}
 	public static class Book_Comments {
 		// <verseCode,commentary>
-		Map<String,String> comments = new HashMap<String,String>(50,50);
+		Map<int[],String> comments = new HashMap<int[],String>();
 		public void initComments() {
 			DB_Ops db = new DB_Ops();
 			db.initComments(comments);	
 		}
+		public boolean exists(int[] verseData, String currentComment) {
+			for(int[] k : comments.keySet()) {
+				if(Arrays.equals(k, verseData) && !currentComment.equals("")) 
+					return true; 
+			}
+			return false;
+		}
+		public void recall() {
+			comments.forEach((k, v) -> {
+				System.out.println("rec: "+k[0]+k[1]+k[2]+": "+v);
+			});
+		}
+		public void addComment(int[] verseData, String comment) {
+			//check for existing
+			for(Map.Entry<int[], String> entry : comments.entrySet()) {
+				if(Arrays.equals(entry.getKey(),verseData)){
+					entry.setValue(comment); 
+					return;
+				}
+				comments.put(verseData, comment); 
+				return;
+			}
+		}
+		
+		public String getVerse(int[] verseData) {
+			for(int[] k : comments.keySet()) {
+				if(Arrays.equals(k, verseData)) 
+				return comments.get(k);
+			}
+			return null;
+		}
+	}
+	public static class Referencing {
+		int beingRefed, toRef;
+		int[] addedVerse = null;
+		static Map<int[],Integer> dataToId;
+		final DB_Ops db = new DB_Ops();
+		
+		public Referencing(int[] addedVerse) {
+			this.addedVerse = addedVerse;
+		}
+		
+		public Referencing() {
+			beingRefed = -1;
+			toRef  = -1;
+			if(dataToId.isEmpty())
+				dataToId = db.GET_DATAtoID_MAP();
+		}
+		
+		public void addReference(UI.AddRef c) {
+			this.addReference(c.getToRefDATA(),
+			c.getBeingRefDATA()
+			);
+		}
+		
+		public void addReference(int[] toRefData, int[] beingRefedData) {
+			beingRefed = -1;
+			toRef = -1;
+			
+			dataToId.forEach((k,v) -> { 
+				if((Arrays.equals(toRefData, k) || (Arrays.equals(beingRefedData, k)))) {
+					if(Arrays.equals(toRefData, k)) {
+						toRef = v.intValue();
+					}
+					else {
+						beingRefed = v.intValue();
+					}
+				}
+				if(beingRefed != -1 && toRef != -1) return;
+			});
+			db.addParrentVerse(beingRefed, toRef);
+		}
+		
+		public void addVerse(int[] newVerse) {
+			dataToId.put(newVerse,dataToId.size());
+		}
+		public void addVerse() {
+			dataToId.put(addedVerse,dataToId.size());
+		}
+		public void removeVerse(int[] delVerse) {
+			try {
+				dataToId.remove(delVerse);
+			}
+			catch(Exception e) {
+				System.out.println("removeVerse(): "+e);
+			}
+		}
+		
 	}
 	
 }
