@@ -179,8 +179,8 @@ public class DB_Ops{
 	}
 	
 	public void addParrentVerse(int childID, int parentID) {
-		String sql = "UPDATE material.Verse SET parent_verse = ?"
-				+ "WHERE verse_ID = ?;";
+		String sql = "UPDATE material.Verse SET parent_verse = ? "
+				+ "WHERE verse_id = ?;";
 		try(PreparedStatement stmnt = DB_Connector.connect().prepareStatement(sql)){
 			stmnt.setInt(0, childID);
 			stmnt.setInt(1, parentID);

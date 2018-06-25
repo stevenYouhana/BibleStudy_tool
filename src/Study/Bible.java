@@ -114,16 +114,17 @@ public class Bible {
 		public Referencing() {
 			beingRefed = -1;
 			toRef  = -1;
-			if(dataToId.isEmpty())
-				dataToId = db.GET_DATAtoID_MAP();
+			if(dataToId == null)
+				dataToId = new HashMap<int[],Integer>(db.GET_DATAtoID_MAP());
 		}
 		
 		public void addReference(UI.AddRef c) {
 			this.addReference(c.getToRefDATA(),
 			c.getBeingRefDATA()
 			);
+			recall();
 		}
-		
+
 		public void addReference(int[] toRefData, int[] beingRefedData) {
 			beingRefed = -1;
 			toRef = -1;
@@ -155,6 +156,11 @@ public class Bible {
 			catch(Exception e) {
 				System.out.println("removeVerse(): "+e);
 			}
+		}
+		public void recall() {
+			dataToId.forEach((k, v) -> {
+				System.out.println("dataToId: "+k[0]+k[1]+k[2]+": "+v);
+			});
 		}
 		
 	}

@@ -85,6 +85,7 @@ public class Home extends JFrame implements Runnable {
 		pnlSth.add(txtCh);
 		pnlSth.add(txtVNum);
 		pnlSth.add(txtActualVerse);
+		pnlSth.add(btnAddRef);
 		super.getContentPane().add(pnlNorth, BorderLayout.NORTH);
 		super.getContentPane().add(pnlSth, BorderLayout.SOUTH);
 		//super.getContentPane().add(pnlWst, BorderLayout.WEST);
@@ -147,72 +148,71 @@ public class Home extends JFrame implements Runnable {
 			}
 		});
 		btnAddRef.addActionListener(new ActionListener() {
+			AddRef ar = new AddRef();
 			Object tempBook = null;
 			Object tempVerse = null;
 			@Override
-	
-
-				
 				public void actionPerformed(ActionEvent arg0) {
 					tempBook = selectedBook;
 					tempVerse = generateVerseCode;
-					System.out.println("ADD REF");
-					A a = new A();
-					a.start();
+					ar.setToRefDATA(generateVerseCode);
+					MainOp mainOp = new MainOp();
+					mainOp.start();
 				}
 				
-				class A extends Thread {
+				class MainOp extends Thread {
 					@Override
 					public void run() {
-						T1 t1 = new T1();
-						t1.start();
-				        synchronized(t1){
+						BookSelect bookSelect = new BookSelect();
+						bookSelect.start();
+				        synchronized(bookSelect){
 				            try{
 				                System.out.println("select book!");
-				                t1.wait();
-				            }catch(InterruptedException ie){
+				                bookSelect.wait();
+				            }
+				            catch(InterruptedException ie){
 				                ie.printStackTrace();
 				            }
 				            System.out.println("book is selected!");
-				            
 				        }
-						VWorkA vwa = new VWorkA();
-						System.out.println("startinf vwa!");
-						vwa.start();
+				        VerseSelect vSelect = new VerseSelect();
+						System.out.println("starting vSelect!");
+						vSelect.start();
 					}
 				}
-				class T1 extends Thread {
-					int sum = 0;
+				class BookSelect extends Thread {
 					@Override
 					public void run() {
 						synchronized(this) {	    
-				            for(;;) {
+				            do {
 				            		System.out.println("selecting...");
-				            		if(selectedBook != tempBook) break;
-				            }
+				            } while (selectedBook == tempBook);
+				            
 				            System.out.println("notifying");
 				            notify();
 				        }
 					}
 				}
-				class VWorkA extends Thread {
+				class VerseSelect extends Thread {
 					@Override
 					public void run() {
-						VWorkB vwb = new VWorkB();
-						vwb.start();
-						synchronized(vwb) {
+						VerseSelected vSelected = new VerseSelected();
+						vSelected.start();
+						synchronized(vSelected) {
 							try {
 								System.out.println("select verse!");
-								vwb.wait();
+								vSelected.wait();
 							}
 							catch(InterruptedException ie) {
 								ie.printStackTrace();
 							}
 							System.out.print("refd verse: "); getVC();
+							ar.setBeingRefed(generateVerseCode);
+							ar.Go();
 						}
 					}
 				}
-				class VWorkB extends Thread {
+				class VerseSelected extends Thread {
 					@Override
 					public void run() {
 						synchronized(this) {
@@ -226,9 +226,7 @@ public class Home extends JFrame implements Runnable {
 						}
 						
 					}
-				}
-			
-			
+				}	
 		});
 		super.pack();
 		super.setVisible(true);

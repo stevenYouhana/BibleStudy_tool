@@ -2,7 +2,7 @@ package UI;
 
 import Study.Bible;
 
-public class AddRef extends Home {
+public class AddRef {
 	/* ONLY INSTANTIATE AT VERSE SELECTION
 	 * select verse being referenced
 	 * ask to select book
@@ -11,7 +11,6 @@ public class AddRef extends Home {
 	 * get verse selection
 	 * add as ref
 	 */
-	private static final long serialVersionUID = 4714846984683657430L;
 	int[] toRefDATA, beingRefdDATA = null;
 	
 	
@@ -19,8 +18,8 @@ public class AddRef extends Home {
 		this.beingRefdDATA = beingRefdDATA;
 	}
 	
-	public void setToRefDATA(int[] toRef) {
-		toRef = super.generateVerseCode;
+	public void setToRefDATA(int[] toRefDATA) {
+		this.toRefDATA = toRefDATA;
 	}
 	
 	public int[] getToRefDATA() {
@@ -34,4 +33,5 @@ public class AddRef extends Home {
 		Bible.Referencing referencing = new Bible.Referencing();
 		referencing.addReference(this);
 	}
+	
 }
