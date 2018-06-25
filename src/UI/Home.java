@@ -57,6 +57,18 @@ public class Home extends JFrame implements Runnable {
 	public Home() {
 		this.run();//take to main
 	}
+	public void getVC() {
+		if(generateVerseCode == null) {
+			System.out.println("VC IS NULL");
+			return;
+		}
+		System.out.println(
+				"verseCode: "+
+						generateVerseCode[0]+
+						generateVerseCode[1]+
+						generateVerseCode[2]
+						);
+	}
 	@Override
 	public void run() {
 		super.setSize(900, 1000);
@@ -135,11 +147,87 @@ public class Home extends JFrame implements Runnable {
 			}
 		});
 		btnAddRef.addActionListener(new ActionListener() {
-
+			Object tempBook = null;
+			Object tempVerse = null;
 			@Override
-			public void actionPerformed(ActionEvent arg0) {
-				System.out.println("TO ADD REF");				
-			}
+	
+
+				
+				public void actionPerformed(ActionEvent arg0) {
+					tempBook = selectedBook;
+					tempVerse = generateVerseCode;
+					System.out.println("ADD REF");
+					A a = new A();
+					a.start();
+				}
+				
+				class A extends Thread {
+					@Override
+					public void run() {
+						T1 t1 = new T1();
+						t1.start();
+				        synchronized(t1){
+				            try{
+				                System.out.println("select book!");
+				                t1.wait();
+				            }catch(InterruptedException ie){
+				                ie.printStackTrace();
+				            }
+				            System.out.println("book is selected!");
+				            
+				        }
+						VWorkA vwa = new VWorkA();
+						System.out.println("startinf vwa!");
+						vwa.start();
+					}
+				}
+				class T1 extends Thread {
+					int sum = 0;
+					@Override
+					public void run() {
+						synchronized(this) {	    
+				            for(;;) {
+				            		System.out.println("selecting...");
+				            		if(selectedBook != tempBook) break;
+				            }
+				            System.out.println("notifying");
+				            notify();
+				        }
+					}
+				}
+				class VWorkA extends Thread {
+					@Override
+					public void run() {
+						VWorkB vwb = new VWorkB();
+						vwb.start();
+						synchronized(vwb) {
+							try {
+								System.out.println("select verse!");
+								vwb.wait();
+							}
+							catch(InterruptedException ie) {
+								ie.printStackTrace();
+							}
+							System.out.print("refd verse: "); getVC();
+						}
+					}
+				}
+				class VWorkB extends Thread {
+					@Override
+					public void run() {
+						synchronized(this) {
+							for(;;) {
+								System.out.println("selecting verse...");
+								if(generateVerseCode != tempVerse &&
+										generateVerseCode != null) break;
+							}
+							System.out.println("verse selected!");
+							notify();
+						}
+						
+					}
+				}
+			
 			
 		});
 		super.pack();
