@@ -119,17 +119,18 @@ public class Bible {
 		}
 		
 		public void addReference(UI.AddRef c) {
+			System.out.println("addRef: ");
+			getVC(c.getBeingRefDATA());
+			getVC(c.getToRefDATA());
 			this.addReference(c.getToRefDATA(),
 			c.getBeingRefDATA()
 			);
-			recall();
 		}
 
 		public void addReference(int[] toRefData, int[] beingRefedData) {
 			beingRefed = -1;
 			toRef = -1;
-			
-			dataToId.forEach((k,v) -> { 
+			dataToId.forEach((k,v) -> {
 				if((Arrays.equals(toRefData, k) || (Arrays.equals(beingRefedData, k)))) {
 					if(Arrays.equals(toRefData, k)) {
 						toRef = v.intValue();
@@ -140,6 +141,8 @@ public class Bible {
 				}
 				if(beingRefed != -1 && toRef != -1) return;
 			});
+			System.out.println("found for beingRefed :"+beingRefed);
+			System.out.println("found for toRefed :"+toRef);
 			db.addParrentVerse(beingRefed, toRef);
 		}
 		
@@ -157,6 +160,18 @@ public class Bible {
 				System.out.println("removeVerse(): "+e);
 			}
 		}
+		public void getVC(int[] data) {
+			if(data == null) {
+				System.out.println("VC IS NULL");
+				return;
+			}
+			System.out.println(
+					"verseCode: "+
+							data[0]+
+							data[1]+
+							data[2]
+							);
+			}
 		public void recall() {
 			dataToId.forEach((k, v) -> {
 				System.out.println("dataToId: "+k[0]+k[1]+k[2]+": "+v);

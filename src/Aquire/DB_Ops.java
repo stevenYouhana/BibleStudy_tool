@@ -122,7 +122,6 @@ public class DB_Ops{
 								rs.getInt("booknum"),rs.getInt("chapter"),rs.getInt("vnum")
 								},
 						rs.getString("comment")
-						
 				);
 			}
 		}
@@ -178,16 +177,35 @@ public class DB_Ops{
 		return map;
 	}
 	
+//	public void addParrentVerse(int childID, int parentID) {
+//		String sql = "UPDATE material.Verse SET parent_verse = ? ";
+//				sql.concat("WHERE verse_id = ? ;");
+//		try(PreparedStatement stmnt = DB_Connector.connect().prepareStatement(sql)){
+//			stmnt.setInt(0, childID);
+//			stmnt.setInt(1, parentID);
+//			stmnt.executeUpdate();
+//		}
+//		catch(SQLException sqle) {
+//			System.out.println("addParent: sqle----"+sqle);
+//		}
+//		catch(Exception e) {
+//			System.out.println("addParent e: "+e);
+//		}
+//	}
 	public void addParrentVerse(int childID, int parentID) {
-		String sql = "UPDATE material.Verse SET parent_verse = ? "
-				+ "WHERE verse_id = ?;";
-		try(PreparedStatement stmnt = DB_Connector.connect().prepareStatement(sql)){
-			stmnt.setInt(0, childID);
-			stmnt.setInt(1, parentID);
-			stmnt.executeUpdate();
+		String sql = "UPDATE material.Verse SET parent_verse = ";
+				sql += String.valueOf(childID);
+				sql += "WHERE verse_id = ";
+				sql += String.valueOf(parentID)+";";
+				
+		try(Connection con = DB_Connector.connect()){
+			Statement stmnt = con.createStatement(ResultSet.
+                    TYPE_SCROLL_INSENSITIVE, ResultSet.CONCUR_UPDATABLE);
+			
+			stmnt.executeUpdate(sql);
 		}
 		catch(SQLException sqle) {
-			System.out.println("addParent: sqle"+sqle);
+			System.out.println("addParent: sqle----"+sqle);
 		}
 		catch(Exception e) {
 			System.out.println("addParent e: "+e);

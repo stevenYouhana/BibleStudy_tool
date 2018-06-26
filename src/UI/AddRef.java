@@ -13,7 +13,6 @@ public class AddRef {
 	 */
 	int[] toRefDATA, beingRefdDATA = null;
 	
-	
 	public void setBeingRefed(int[] beingRefdDATA) {
 		this.beingRefdDATA = beingRefdDATA;
 	}
@@ -28,7 +27,18 @@ public class AddRef {
 	public int[] getBeingRefDATA() {
 		return beingRefdDATA;
 	}
-	
+	public void getVC(int[] data) {
+		if(data == null) {
+			System.out.println("VC IS NULL");
+			return;
+		}
+		System.out.println(
+				"verseCode: "+
+						data[0]+
+						data[1]+
+						data[2]
+						);
+		}
 	public void Go() {
 		Bible.Referencing referencing = new Bible.Referencing();
 		referencing.addReference(this);
