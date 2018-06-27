@@ -38,10 +38,65 @@ public class AddRef {
 						data[1]+
 						data[2]
 						);
-		}
+	}
+	
 	public void Go() {
+		System.out.println("BEING - ");
+		getVC(this.beingRefdDATA);
+		System.out.println("TO - ");
+		getVC(this.toRefDATA);
 		Bible.Referencing referencing = new Bible.Referencing();
 		referencing.addReference(this);
 	}
 	
+	static class VerseRef implements Runnable {
+		AddRef ar;
+		Object tempVerse = null;
+		
+		public VerseRef() {
+			ar = new AddRef();
+			tempVerse = Home.generateVerseCode;
+			ar.setToRefDATA(Home.generateVerseCode);
+		}
+		@Override
+		public void run() {
+			VerseSelect vSelect = new VerseSelect();
+			vSelect.start();
+		}
+		
+		private class VerseSelect extends Thread {
+			@Override
+			public void run() {
+				BeingRefed beingRefed = new BeingRefed();
+				beingRefed.start();
+				synchronized(beingRefed) {
+					try {
+						System.out.println("select verse!");
+						beingRefed.wait();
+					}
+					catch(InterruptedException ie) {
+						ie.printStackTrace();
+					}
+					System.out.print("refd verse: ");
+					ar.setBeingRefed(Home.generateVerseCode);
+					ar.Go();
+					Home.generateVerseCode = null;	//resetting verse code
+				}
+			}
+		}
+		private class BeingRefed extends Thread {
+			@Override
+			public void run() {
+				synchronized(this) {
+					for(;;) {
+						System.out.println("selecting verse...");
+						if(Home.generateVerseCode != tempVerse &&
+								Home.generateVerseCode != null) break;
+					}
+					System.out.println("verse selected!");
+					notify();
+				}
+			}
+		}
+	}
 }

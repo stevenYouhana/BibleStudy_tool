@@ -14,6 +14,7 @@ import javax.swing.event.ListSelectionListener;
 import Aquire.DB_Ops;
 import Study.Bible;
 import Study.Book;
+import UI.AddRef.VerseRef;
 
 public class Home extends JFrame implements Runnable {
 	/**
@@ -25,10 +26,11 @@ public class Home extends JFrame implements Runnable {
 	
 	final String COMMENTARY = "enter your comments...";
 	final String VERSE = "Write the actual verse...";
-	protected int[] generateVerseCode;
+	protected static int[] generateVerseCode;
 	final Bible.Book_Verses BOOK_VERSES = new Bible.Book_Verses();
 	final Bible.Book_Comments BOOK_COMMENTS = new Bible.Book_Comments();
 	final Bible.Referencing referencing = new Bible.Referencing();
+	Utilities utilities = new Utilities();
 	MessageBox msgbox = new MessageBox(this);
 	//existing
 	BookListing bl = new BookListing();
@@ -148,85 +150,14 @@ public class Home extends JFrame implements Runnable {
 			}
 		});
 		btnAddRef.addActionListener(new ActionListener() {
-			AddRef ar = new AddRef();
-			Object tempBook = null;
-			Object tempVerse = null;
+			JButton[] buttons = {btnAddVerse, btnAddComment, btnAddRef};
 			@Override
 				public void actionPerformed(ActionEvent arg0) {
-					tempBook = selectedBook;
-					tempVerse = generateVerseCode;
-					ar.setToRefDATA(generateVerseCode);
-					MainOp mainOp = new MainOp();
-					mainOp.start();
+					AddRef.VerseRef vr = new AddRef.VerseRef();
+					utilities.disable_buttons(buttons);
+					vr.run();
+					utilities.enable_buttons(buttons);
 				}
-				
-				class MainOp extends Thread {
-					@Override
-					public void run() {
-						BookSelect bookSelect = new BookSelect();
-						bookSelect.start();
-				        synchronized(bookSelect){
-				            try{
-				                System.out.println("select book!");
-				                bookSelect.wait();
-				            }
-				            catch(InterruptedException ie){
-				                ie.printStackTrace();
-				            }
-				            System.out.println("book is selected!");
-				        }
-				        VerseSelect vSelect = new VerseSelect();
-						System.out.println("starting vSelect!");
-						vSelect.start();
-					}
-				}
-				class BookSelect extends Thread {
-					@Override
-					public void run() {
-						synchronized(this) {	    
-				            do {
-				            		System.out.println("selecting...");
-				            } while (selectedBook == tempBook);
-				            
-				            System.out.println("notifying");
-				            notify();
-				        }
-					}
-				}
-				class VerseSelect extends Thread {
-					@Override
-					public void run() {
-						VerseSelected vSelected = new VerseSelected();
-						vSelected.start();
-						synchronized(vSelected) {
-							try {
-								System.out.println("select verse!");
-								vSelected.wait();
-							}
-							catch(InterruptedException ie) {
-								ie.printStackTrace();
-							}
-							System.out.print("refd verse: "); getVC();
-							ar.setBeingRefed(generateVerseCode);
-							ar.Go();
-						}
-					}
-				}
-				class VerseSelected extends Thread {
-					@Override
-					public void run() {
-						synchronized(this) {
-							for(;;) {
-								System.out.println("selecting verse...");
-								if(generateVerseCode != tempVerse &&
-										generateVerseCode != null) break;
-							}
-							System.out.println("verse selected!");
-							notify();
-						}
-						
-					}
-				}	
 		});
 		super.pack();
 		super.setVisible(true);
