@@ -14,7 +14,6 @@ import javax.swing.event.ListSelectionListener;
 import Aquire.DB_Ops;
 import Study.Bible;
 import Study.Book;
-import UI.AddRef.VerseRef;
 
 public class Home extends JFrame implements Runnable {
 	/**

@@ -1,7 +1,9 @@
 package Study;
 
+import java.util.List;
 import java.util.Arrays;
 import java.util.HashMap;
+import java.util.LinkedList;
 import java.util.Map;
 
 import Aquire.DB_Ops;
@@ -10,13 +12,14 @@ public class Bible {
 	private static Bible instant = null;
 	public static final int NUM = 66;
 	public static Book[] books = new Book[NUM];
-	
+	public static List<int[]> mass_verse_data = new LinkedList<int[]>();
 	private Bible(){
 		
 	}
 //load all books
 	{
 		books = DB_Ops.GET_BOOKS();
+		
 	}
 	public static Bible getInstant(){
 		if(instant == null) {
@@ -59,6 +62,9 @@ public class Bible {
 			DB_Ops db = new DB_Ops();
 			for(Book b : Bible.books) {
 				b.setVerses(db.getVersesFor(b));
+				for(Verse v : b.getVerses()) {	// pop allVerses
+					mass_verse_data.add(v.getVerseData());
+				}
 			}
 		}
 	}

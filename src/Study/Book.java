@@ -42,10 +42,11 @@ public class Book {
 			}
 		}
 		verses.add(new Verse(book, ch, vnum, actualVerse));
+		Bible.mass_verse_data.add(new int[]{book, ch, vnum});
 		Bible.Referencing referencing = new Bible.Referencing(newVerse);
 		referencing.addVerse();
 	}
-	public ArrayList<Verse> getVerses(){
+	public ArrayList<Verse> getVerses() {
 		return verses;
 	}
 	public Verse findVerse(int[] verseCode) {
