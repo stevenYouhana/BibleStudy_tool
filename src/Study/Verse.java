@@ -37,6 +37,9 @@ public class Verse {
 	public void addReferences(int[] verseData) {
 		references.add(verseData);
 	}
+	public LinkedList<int[]> getReferences() {
+		return references;
+	}
 	public String getVerseCode(){
 		return verseCode;
 	}

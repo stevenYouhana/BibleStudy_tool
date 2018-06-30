@@ -1,5 +1,7 @@
 package UI;
 
+import java.util.Arrays;
+
 import Study.Bible;
 
 public class AddRef {
@@ -41,18 +43,17 @@ public class AddRef {
 	}
 	
 	public void Go() {
-		System.out.println("BEING - ");
 		getVC(this.beingRefdDATA);
-		System.out.println("TO - ");
 		getVC(this.toRefDATA);
 		Bible.Referencing referencing = new Bible.Referencing();
 		referencing.addReference(this);
+		
 	}
 	
 	static class VerseRef implements Runnable {
 		AddRef ar;
 		Object tempVerse = null;
-		
+		int[] tempVerseLiteral = null;
 		public VerseRef() {
 			ar = new AddRef();
 			tempVerse = Home.generateVerseCode;
@@ -80,6 +81,11 @@ public class AddRef {
 					System.out.print("refd verse: ");
 					ar.setBeingRefed(Home.generateVerseCode);
 					ar.Go();
+					Bible.mass_verses.forEach(e -> {
+						if(Arrays.equals(e.getVerseData(),tempVerseLiteral)) {
+							e.getReferences().add(Home.generateVerseCode);
+						}
+					});
 					Home.generateVerseCode = null;	//resetting verse code
 				}
 			}

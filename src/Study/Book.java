@@ -42,7 +42,7 @@ public class Book {
 			}
 		}
 		verses.add(new Verse(book, ch, vnum, actualVerse));
-		Bible.mass_verse_data.add(new int[]{book, ch, vnum});
+		Bible.mass_verses.add(new Verse(book, ch, vnum, actualVerse));
 		Bible.Referencing referencing = new Bible.Referencing(newVerse);
 		referencing.addVerse();
 	}

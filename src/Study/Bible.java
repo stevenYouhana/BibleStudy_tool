@@ -12,7 +12,7 @@ public class Bible {
 	private static Bible instant = null;
 	public static final int NUM = 66;
 	public static Book[] books = new Book[NUM];
-	public static List<int[]> mass_verse_data = new LinkedList<int[]>();
+	public static List<Verse> mass_verses = new LinkedList<Verse>();
 	private Bible(){
 		
 	}
@@ -58,13 +58,17 @@ public class Bible {
 		return 0;
 	}
 	public static class Book_Verses {
+		public final static Map<Integer,String> MAP = new HashMap<Integer,String>(66);
+		
 		public void initVerses() {
 			DB_Ops db = new DB_Ops();
 			for(Book b : Bible.books) {
 				b.setVerses(db.getVersesFor(b));
 				for(Verse v : b.getVerses()) {	// pop allVerses
-					mass_verse_data.add(v.getVerseData());
+					mass_verses.add(v);
 				}
+				//pop MAP also
+				MAP.put(b.getBooknum(), b.getTitle());
 			}
 		}
 	}

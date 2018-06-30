@@ -6,6 +6,7 @@ import java.sql.Statement;
 import java.sql.ResultSet;
 import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.LinkedList;
 import java.util.Map;
 
 import javax.swing.DefaultListModel;
@@ -110,7 +111,7 @@ public class DB_Ops{
 			System.out.println(e);
 		}	
 	}
-	public void initComments(Map<int[],String> map) {
+	public final void initComments(Map<int[],String> map) {
 		String sql = "SELECT * FROM material.Verse;";
 		
 		try(Connection con  = DB_Connector.connect()){
@@ -177,21 +178,7 @@ public class DB_Ops{
 		return map;
 	}
 	
-//	public void addParrentVerse(int childID, int parentID) {
-//		String sql = "UPDATE material.Verse SET parent_verse = ? ";
-//				sql.concat("WHERE verse_id = ? ;");
-//		try(PreparedStatement stmnt = DB_Connector.connect().prepareStatement(sql)){
-//			stmnt.setInt(0, childID);
-//			stmnt.setInt(1, parentID);
-//			stmnt.executeUpdate();
-//		}
-//		catch(SQLException sqle) {
-//			System.out.println("addParent: sqle----"+sqle);
-//		}
-//		catch(Exception e) {
-//			System.out.println("addParent e: "+e);
-//		}
-//	}
+
 	public void addParrentVerse(int childID, int parentID) {
 		String sql = "UPDATE material.Verse SET parent_verse = ";
 				sql += String.valueOf(childID);
@@ -209,6 +196,31 @@ public class DB_Ops{
 		}
 		catch(Exception e) {
 			System.out.println("addParent e: "+e);
+		}
+	}
+	
+	public final void INIT_REF_LIST() {
+		String sql = null;
+		int[] vData = null;
+		for(Verse verse : Bible.mass_verses) {
+				vData = verse.getVerseData();
+			sql = "SELECT booknum, chapter, vnum FROM material.Verse WHERE "
+					+ "booknum = "+vData[0]+" AND chapter = "+vData[1]+
+					" AND vnum = "+vData[2] + " ;";
+			
+			try(Connection con = DB_Connector.connect()){
+				Statement stmnt = con.createStatement();
+				ResultSet rs = stmnt.executeQuery(sql);
+				
+				while(rs.next()) {
+					verse.getReferences().add(
+							new int[] {rs.getInt("booknum"),rs.getInt("chapter"),rs.getInt("vnum")}
+							);
+				}
+			}
+			catch(SQLException sqle) {
+				sqle.printStackTrace();
+			}
 		}
 	}
 }

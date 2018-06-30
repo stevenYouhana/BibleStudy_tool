@@ -29,6 +29,7 @@ public class Home extends JFrame implements Runnable {
 	final Bible.Book_Verses BOOK_VERSES = new Bible.Book_Verses();
 	final Bible.Book_Comments BOOK_COMMENTS = new Bible.Book_Comments();
 	final Bible.Referencing referencing = new Bible.Referencing();
+	private RefedVerses refedVerses;
 	Utilities utilities = new Utilities();
 	MessageBox msgbox = new MessageBox(this);
 	//existing
@@ -45,6 +46,9 @@ public class Home extends JFrame implements Runnable {
 	JScrollPane scrCommentary = new JScrollPane(txtCommentary);
 	JScrollPane scrBooks = new JScrollPane(bl.books);
 	JTextArea txtActualVerse = new JTextArea(VERSE);
+	
+	JList<String> lstRef = new JList<String>();
+	DefaultListModel<String> model = new DefaultListModel<String>(); 
 	
 	//panes
 	JPanel pnlNorth = new JPanel();
@@ -78,6 +82,14 @@ public class Home extends JFrame implements Runnable {
 		txtActualVerse.setPreferredSize(new Dimension(400,200));
 		scrBooks.setPreferredSize(new Dimension(100,300));
 		scrCommentary.setPreferredSize(new Dimension(400,200));
+		//PROPS
+		{
+			
+		lstRef.setPreferredSize(new Dimension(150,400));
+		refedVerses = new RefedVerses(this, lstRef, model);
+		//call update at verse change
+		}
+		pnlNorth.add(refedVerses.getListing());
 		pnlNorth.add(scrBooks);
 		pnlNorth.add(loadedVerses.scrl);
 		pnlSth.add(btnAddVerse);
@@ -95,7 +107,7 @@ public class Home extends JFrame implements Runnable {
 		BOOK_COMMENTS.initComments();
 		bl.books.setSelectedIndex(0);
 		BOOK_COMMENTS.recall();
-		
+		db.INIT_REF_LIST();
 		//BUTTONS ACTION
 		
 		btnAddVerse.addActionListener(new ActionListener() {
@@ -226,7 +238,7 @@ public class Home extends JFrame implements Runnable {
 				}
 			}
 		}
-		VerseData vd; 
+		VerseData vd = null; 
 		@Override
 		public void valueChanged(ListSelectionEvent arg0) {
 			try {	
@@ -234,6 +246,7 @@ public class Home extends JFrame implements Runnable {
 					vd = new VerseData(verses.getSelectedValue());
 					vd.setData();
 					txtCommentary.setText(BOOK_COMMENTS.getVerse(generateVerseCode));
+					refedVerses.update(generateVerseCode);
 				}
 				else {
 					txtCommentary.setText(COMMENTARY);
