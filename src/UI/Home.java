@@ -238,7 +238,7 @@ public class Home extends JFrame implements Runnable {
 				}
 			}
 		}
-		VerseData vd = null; 
+		VerseData vd; 
 		@Override
 		public void valueChanged(ListSelectionEvent arg0) {
 			try {	

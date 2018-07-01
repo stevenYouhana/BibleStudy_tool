@@ -1,5 +1,6 @@
 package UI;
 
+
 import java.util.Arrays;
 
 import Study.Bible;
@@ -29,7 +30,7 @@ public class AddRef {
 	public int[] getBeingRefDATA() {
 		return beingRefdDATA;
 	}
-	public void getVC(int[] data) {
+	public static void getVC(int[] data) {
 		if(data == null) {
 			System.out.println("VC IS NULL");
 			return;
@@ -43,8 +44,6 @@ public class AddRef {
 	}
 	
 	public void Go() {
-		getVC(this.beingRefdDATA);
-		getVC(this.toRefDATA);
 		Bible.Referencing referencing = new Bible.Referencing();
 		referencing.addReference(this);
 		
@@ -58,6 +57,7 @@ public class AddRef {
 			ar = new AddRef();
 			tempVerse = Home.generateVerseCode;
 			ar.setToRefDATA(Home.generateVerseCode);
+			
 		}
 		@Override
 		public void run() {
@@ -81,11 +81,13 @@ public class AddRef {
 					System.out.print("refd verse: ");
 					ar.setBeingRefed(Home.generateVerseCode);
 					ar.Go();
-//					Bible.mass_verses.forEach(e -> {
-//						if(Arrays.equals(e.getVerseData(),tempVerseLiteral)) {
-//							e.getReferences().add(Home.generateVerseCode);
-//						}
-//					});
+					Bible.mass_verses.forEach(e -> {
+						if(Arrays.equals(e.getVerseData(),tempVerseLiteral)) {
+							e.getReferences().add(Home.generateVerseCode);
+						}
+					});
+					System.out.println("generatedVerseCode: "); getVC(Home.generateVerseCode);
+					
 					Home.generateVerseCode = null;	//resetting verse code
 				}
 			}
@@ -101,6 +103,7 @@ public class AddRef {
 					}
 					System.out.println("verse selected!");
 					notify();
+					System.out.println("generatedVerseCode: "); getVC(Home.generateVerseCode);
 				}
 			}
 		}
