@@ -81,11 +81,11 @@ public class AddRef {
 					System.out.print("refd verse: ");
 					ar.setBeingRefed(Home.generateVerseCode);
 					ar.Go();
-					Bible.mass_verses.forEach(e -> {
-						if(Arrays.equals(e.getVerseData(),tempVerseLiteral)) {
-							e.getReferences().add(Home.generateVerseCode);
-						}
-					});
+//					Bible.mass_verses.forEach(e -> {
+//						if(Arrays.equals(e.getVerseData(),tempVerseLiteral)) {
+//							e.getReferences().add(Home.generateVerseCode);
+//						}
+//					});
 					Home.generateVerseCode = null;	//resetting verse code
 				}
 			}
