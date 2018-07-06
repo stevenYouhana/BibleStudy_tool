@@ -37,6 +37,7 @@ class RefedVerses extends Props {
 			if(Arrays.equals(verseData, v.getVerseData()) && 
 					!(v.getReferences().isEmpty())) {
 				for(int[] data : v.getReferences()) {
+					System.out.println("getting ref: ");AddRef.getVC(v.getReferences().get(0));
 					model.addElement(verseBlock(data));
 				}
 			}
@@ -44,7 +45,7 @@ class RefedVerses extends Props {
 	}
 	
 	private String verseBlock(int[] data) {
-		return Bible.Book_Verses.MAP.get(data[0])+" "+data[1]+": "+data[1];
+		return Bible.Book_Verses.MAP.get(data[0])+" "+data[1]+": "+data[2];
 	}
 	
 	public JList<String> getListing() {

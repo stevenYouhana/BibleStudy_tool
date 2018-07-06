@@ -217,7 +217,7 @@ public class Home extends JFrame implements Runnable {
 		class VerseData {
 			String verse = null;
 							//			"###: ### "
-			private final String DATA = "^(\\d){1,3}[:]\\s(\\d){1,3}\\s";
+			private final String DATA = "^(\\d{1,3})([:]\\s)((\\d){1,3}\\s)";
 			private Pattern pattern = Pattern.compile(DATA);
 			Matcher matcher;
 			
@@ -227,14 +227,13 @@ public class Home extends JFrame implements Runnable {
 					matcher = pattern.matcher(verse);
 				}
 			}
-			public void setData() {
+			public void setData() { 
 				if(matcher.find()) {
 					generateVerseCode = new int[3];
 					generateVerseCode[0] = selectedBook.getBooknum();
 					generateVerseCode[1] = Integer.parseInt(matcher.group(1));
-					generateVerseCode[2] = Integer.parseInt(matcher.group(0).toString().substring(
-							matcher.group(0).toString().indexOf(':')+2,
-							matcher.group(0).toString().length()-1));
+					generateVerseCode[2] = Integer.parseInt(matcher.group(3).toString().substring(0,
+                            matcher.group(3).toString().length()-1));
 				}
 			}
 		}

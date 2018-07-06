@@ -213,7 +213,7 @@ public class DB_Ops{
 				ResultSet rs = stmnt.executeQuery(sql);
 				
 				while(rs.next()) {
-					verse.getReferences().add(
+					verse.addReferences(
 							new int[] {rs.getInt("booknum"),rs.getInt("chapter"),rs.getInt("vnum")}
 							);
 				}
