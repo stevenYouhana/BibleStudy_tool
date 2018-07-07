@@ -46,6 +46,7 @@ public class Verse {
 	public String getCommentary() {
 		return commentary;
 	}
+	//NOT IN USE
 	public void setParentVerse(int id) {
 		parent_verse = id;
 	}

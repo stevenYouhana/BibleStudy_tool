@@ -56,6 +56,7 @@ public class AddRef {
 		public VerseRef() {
 			ar = new AddRef();
 			tempVerse = Home.generateVerseCode;
+			tempVerseLiteral = Arrays.copyOf(Home.generateVerseCode,Home.generateVerseCode.length);
 			ar.setToRefDATA(Home.generateVerseCode);
 			
 		}

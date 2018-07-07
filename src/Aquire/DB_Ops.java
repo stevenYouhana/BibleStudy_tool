@@ -5,8 +5,9 @@ import java.sql.SQLException;
 import java.sql.Statement;
 import java.sql.ResultSet;
 import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.Collection;
 import java.util.HashMap;
-import java.util.LinkedList;
 import java.util.Map;
 
 import javax.swing.DefaultListModel;
@@ -200,26 +201,51 @@ public class DB_Ops{
 	}
 	
 	public final void INIT_REF_LIST() {
-		String sql = null;
-		int[] vData = null;
+		Statement stmnt;
+		ResultSet rs;
+		Collection<Integer> ids = GET_DATAtoID_MAP().values();
+		
 		for(Verse verse : Bible.mass_verses) {
-				vData = verse.getVerseData();
-			sql = "SELECT booknum, chapter, vnum FROM material.Verse WHERE "
-					+ "booknum = "+vData[0]+" AND chapter = "+vData[1]+
-					" AND vnum = "+vData[2] + " ;";
+			String sql = null;
+
+			for(Object id : ids) {
+				sql = "SELECT * FROM material.verse WHERE verse_id = ";
+				sql += id + ";";
 			
-			try(Connection con = DB_Connector.connect()){
-				Statement stmnt = con.createStatement();
-				ResultSet rs = stmnt.executeQuery(sql);
-				
-				while(rs.next()) {
-					verse.addReferences(
-							new int[] {rs.getInt("booknum"),rs.getInt("chapter"),rs.getInt("vnum")}
-							);
+				try(Connection con = DB_Connector.connect()) {
+					stmnt = con.createStatement();
+					rs = stmnt.executeQuery(sql);
+					
+					while(rs.next()) {
+						sql = "";	// reset
+						sql += "SELECT booknum, chapter, vnum FROM material.Verse WHERE verse_id = "
+								+ rs.getInt("parent_verse");
+						rs.close();
+						stmnt.close();
+						
+						stmnt = con.createStatement();
+						rs = stmnt.executeQuery(sql);
+						while(rs.next()) {
+							if(!(rs.wasNull())) {
+								System.out.println("for: "+rs.getInt("booknum"));
+								verse.addReferences(
+										new int[] {rs.getInt("booknum"),
+										rs.getInt("chapter"),
+										rs.getInt("vnum")}
+										);
+							}
+						}
+						
+					}
+					
 				}
-			}
-			catch(SQLException sqle) {
-				sqle.printStackTrace();
+				catch(SQLException sqle) {
+					sqle.printStackTrace();
+				}
+				catch(Exception e) {
+					e.printStackTrace();
+				}
+				
 			}
 		}
 	}
