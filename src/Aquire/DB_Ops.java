@@ -18,7 +18,7 @@ import Study.Verse;
 
 
 public class DB_Ops{
-	
+	Utility.Log p = new Utility.Log();
 	public static final Book[] GET_BOOKS() {
 		final class Testiment {
 			Book.Testament testiment;
@@ -179,7 +179,7 @@ public class DB_Ops{
 		return map;
 	}
 	
-
+	// USED IN Bible.Referencing
 	public void addParrentVerse(int childID, int parentID) {
 		String sql = "UPDATE material.Verse SET parent_verse = ";
 				sql += String.valueOf(childID);
@@ -201,52 +201,37 @@ public class DB_Ops{
 	}
 	
 	public final void INIT_REF_LIST() {
+	/* option 2
+	 * get results for [parent_verse] from verse table
+	 * for each available [parent_verse] check 'verse'
+	 * add verse data of the [parent_verse] to java Verse:references list of 'verse'
+	 * repeat for all result set
+	 */
 		Statement stmnt;
 		ResultSet rs;
-		Collection<Integer> ids = GET_DATAtoID_MAP().values();
-		
-		for(Verse verse : Bible.mass_verses) {
-			String sql = null;
 
-			for(Object id : ids) {
-				sql = "SELECT * FROM material.verse WHERE verse_id = ";
-				sql += id + ";";
-			
-				try(Connection con = DB_Connector.connect()) {
-					stmnt = con.createStatement();
-					rs = stmnt.executeQuery(sql);
-					
-					while(rs.next()) {
-						sql = "";	// reset
-						sql += "SELECT booknum, chapter, vnum FROM material.Verse WHERE verse_id = "
-								+ rs.getInt("parent_verse");
-						rs.close();
-						stmnt.close();
-						
-						stmnt = con.createStatement();
-						rs = stmnt.executeQuery(sql);
-						while(rs.next()) {
-							if(!(rs.wasNull())) {
-								System.out.println("for: "+rs.getInt("booknum"));
-								verse.addReferences(
-										new int[] {rs.getInt("booknum"),
-										rs.getInt("chapter"),
-										rs.getInt("vnum")}
-										);
-							}
-						}
-						
-					}
-					
+		try(Connection con = DB_Connector.connect()){
+				String sql = "SELECT booknum, chapter, vnum, parent_verse FROM material.verse;";
+				stmnt = con.createStatement();
+				rs = stmnt.executeQuery(sql);
+				int mass_verses_index = 0;
+				while(rs.next()) {
+					if(rs.getInt("parent_verse") != 0) {
+						Bible.mass_verses.get(mass_verses_index).addReferences(new int[] {
+								rs.getInt("booknum"), rs.getInt("chapter"), rs.getInt("vnum")
+								});
 				}
-				catch(SQLException sqle) {
-					sqle.printStackTrace();
-				}
-				catch(Exception e) {
-					e.printStackTrace();
-				}
-				
+					++mass_verses_index;
 			}
 		}
+		catch(SQLException sqle) {
+			sqle.printStackTrace();
+		}
+		catch(Exception e) {
+			e.printStackTrace();
+		}
+		
 	}
+	
+	
 }

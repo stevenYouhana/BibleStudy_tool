@@ -12,7 +12,7 @@ public class Bible {
 	private static Bible instant = null;
 	public static final int NUM = 66;
 	public static Book[] books = new Book[NUM];
-	public static List<Verse> mass_verses = new LinkedList<Verse>();
+	public static LinkedList<Verse> mass_verses = new LinkedList<Verse>();
 	private Bible(){
 		
 	}
@@ -129,9 +129,6 @@ public class Bible {
 		}
 		
 		public void addReference(UI.AddRef c) {
-			System.out.println("addRef: ");
-			getVC(c.getBeingRefDATA());
-			getVC(c.getToRefDATA());
 			this.addReference(c.getToRefDATA(),
 			c.getBeingRefDATA()
 			);
@@ -151,8 +148,6 @@ public class Bible {
 				}
 				if(beingRefed != -1 && toRef != -1) return;
 			});
-			System.out.println("found for beingRefed :"+beingRefed);
-			System.out.println("found for toRefed :"+toRef);
 			db.addParrentVerse(beingRefed, toRef);
 		}
 		

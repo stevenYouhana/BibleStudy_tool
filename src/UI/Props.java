@@ -7,11 +7,13 @@ import javax.swing.JFrame;
 import javax.swing.JList;
 import Study.Bible;
 import Study.Verse;
+import Utility.Log;
 
 public abstract class Props {
 	JFrame frame;
 	JList<String> list;
 	DefaultListModel<String> model;
+	public Log p;
 	
 	Props(JFrame frame, JList<String> list, DefaultListModel<String> model) {
 		this(frame);
@@ -37,7 +39,7 @@ class RefedVerses extends Props {
 			if(Arrays.equals(verseData, v.getVerseData()) && 
 					!(v.getReferences().isEmpty())) {
 				for(int[] data : v.getReferences()) {
-					System.out.println("getting ref: ");AddRef.getVC(v.getReferences().get(0));
+					p.p("found for "+v.toString()+">> "+data[0]+data[1]+data[2]);
 					model.addElement(verseBlock(data));
 				}
 			}

@@ -46,6 +46,10 @@ public class Verse {
 	public String getCommentary() {
 		return commentary;
 	}
+	@Override
+	public String toString() {
+		return verseData[1]+": "+verseData[2]+" \""+actualVerse;
+	}
 	//NOT IN USE
 	public void setParentVerse(int id) {
 		parent_verse = id;

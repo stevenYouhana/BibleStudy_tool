@@ -108,6 +108,7 @@ public class Home extends JFrame implements Runnable {
 		bl.books.setSelectedIndex(0);
 		BOOK_COMMENTS.recall();
 		db.INIT_REF_LIST();
+		
 		//BUTTONS ACTION
 		
 		btnAddVerse.addActionListener(new ActionListener() {
@@ -189,9 +190,7 @@ public class Home extends JFrame implements Runnable {
 		public void valueChanged(ListSelectionEvent arg0) {
 			if(BIBLE.getBooks()[books.getSelectedIndex()] != null) {
 				selectedBook = BIBLE.getBooks()[books.getSelectedIndex()];
-				System.out.println("bookNum: "+books.getSelectedValue());
 				loadedVerses.updateList(BIBLE.selectBook(books.getSelectedValue()));
-				System.out.println("booknum: "+selectedBook.getBooknum());
 			}
 			generateVerseCode = null;	//reseting verseCode
 		}

@@ -45,8 +45,7 @@ public class AddRef {
 	
 	public void Go() {
 		Bible.Referencing referencing = new Bible.Referencing();
-		referencing.addReference(this);
-		
+		referencing.addReference(this);	
 	}
 	
 	static class VerseRef implements Runnable {
@@ -87,8 +86,6 @@ public class AddRef {
 							e.addReferences(Home.generateVerseCode);
 						}
 					});
-					System.out.println("generatedVerseCode: "); getVC(Home.generateVerseCode);
-					
 					Home.generateVerseCode = null;	//resetting verse code
 				}
 			}
@@ -104,7 +101,6 @@ public class AddRef {
 					}
 					System.out.println("verse selected!");
 					notify();
-					System.out.println("generatedVerseCode: "); getVC(Home.generateVerseCode);
 				}
 			}
 		}
