@@ -1,4 +1,5 @@
 package Aquire;
+import java.util.List;
 import java.sql.Connection;
 import java.sql.PreparedStatement;
 import java.sql.SQLException;
@@ -8,6 +9,7 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collection;
 import java.util.HashMap;
+import java.util.LinkedList;
 import java.util.Map;
 
 import javax.swing.DefaultListModel;
@@ -17,7 +19,7 @@ import Study.Book;
 import Study.Verse;
 
 
-public class DB_Ops{
+public class DB_Ops {
 	Utility.Log p = new Utility.Log();
 	public static final Book[] GET_BOOKS() {
 		final class Testiment {
@@ -70,13 +72,16 @@ public class DB_Ops{
 	}
 	public ArrayList<Verse> getVersesFor(Book b) {
 		ArrayList<Verse> verses = new ArrayList<Verse>(50);
+		Verse verse = null;
 		try(Connection con = DB_Connector.connect()){
 			Statement stmt = con.createStatement();
 			ResultSet rs = stmt.executeQuery(
 					"SELECT * FROM material.Verse WHERE booknum = '"+b.getBooknum()+"';");
 			while(rs.next()) {
-				verses.add(new Verse(b.getBooknum(),rs.getInt("chapter"),
-						rs.getInt("vnum"),rs.getString("verse")));
+				verse = new Verse(b.getBooknum(),rs.getInt("chapter"),
+						rs.getInt("vnum"),rs.getString("verse"));
+				verse.setID(rs.getInt("verse_id"));
+				verses.add(verse);
 			}
 		}
 		catch(SQLException sqle) {
@@ -201,37 +206,69 @@ public class DB_Ops{
 	}
 	
 	public final void INIT_REF_LIST() {
-	/* option 2
-	 * get results for [parent_verse] from verse table
-	 * for each available [parent_verse] check 'verse'
-	 * add verse data of the [parent_verse] to java Verse:references list of 'verse'
-	 * repeat for all result set
-	 */
-		Statement stmnt;
-		ResultSet rs;
+		/* 
+		 * get results for [parent_verse] from verse table
+		 * for each available [parent_verse] check 'verse'
+		 * add verse data of the [parent_verse] to java Verse:references list of 'verse'
+		 * repeat for all result set
+		 */
+		class All_Records {
 
-		try(Connection con = DB_Connector.connect()){
-				String sql = "SELECT booknum, chapter, vnum, parent_verse FROM material.verse;";
-				stmnt = con.createStatement();
-				rs = stmnt.executeQuery(sql);
-				int mass_verses_index = 0;
-				while(rs.next()) {
-					if(rs.getInt("parent_verse") != 0) {
-						Bible.mass_verses.get(mass_verses_index).addReferences(new int[] {
-								rs.getInt("booknum"), rs.getInt("chapter"), rs.getInt("vnum")
-								});
+			String sql = null;
+			List<Integer> generalData = new LinkedList<Integer>();
+			int tempParent = 0;
+			
+			public void setGeneral_Data() {
+				ResultSet rs = null;
+				Statement stmnt;
+				try(Connection con = DB_Connector.connect()) {
+					sql = "SELECT verse_id FROM material.verse WHERE parent_verse <> 0;";	
+					stmnt = con.createStatement();
+					rs = stmnt.executeQuery(sql);
+					while(rs.next()) {
+						generalData.add(rs.getInt("verse_id"));
+					}
 				}
-					++mass_verses_index;
+				catch(SQLException sqle) {
+					sqle.printStackTrace();
+				}
+				catch(Exception e) {
+					e.printStackTrace();
+				}
+				
 			}
+			
+			public void getAccording() {
+				ResultSet rs = null;
+				Statement stmnt = null;
+				sql = "SELECT parent_verse FROM material.verse;";
+				
+				try(Connection con = DB_Connector.connect()) {
+					stmnt = con.createStatement();
+					rs = stmnt.executeQuery(sql);
+					
+					while(rs.next()) {
+						tempParent = rs.getInt("parent_verse");
+						generalData.forEach( (id) -> {
+							if(tempParent == id)
+								Bible.mass_verses.forEach( (storedVerse) -> {
+									if(storedVerse.getID() == id)
+										storedVerse.addReferences(tempParent);
+								});
+						});
+					}
+				}
+				catch(Exception e) {
+					e.getStackTrace();
+				}
+			}
+		
+			
 		}
-		catch(SQLException sqle) {
-			sqle.printStackTrace();
-		}
-		catch(Exception e) {
-			e.printStackTrace();
-		}
+		All_Records records = new All_Records();
+		records.setGeneral_Data();
+		records.getAccording();
 		
 	}
-	
 	
 }

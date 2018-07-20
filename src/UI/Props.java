@@ -38,15 +38,16 @@ class RefedVerses extends Props {
 		for(Verse v : Bible.mass_verses) {
 			if(Arrays.equals(verseData, v.getVerseData()) && 
 					!(v.getReferences().isEmpty())) {
-				for(int[] data : v.getReferences()) {
-					p.p("found for "+v.toString()+">> "+data[0]+data[1]+data[2]);
+				for(int data : v.getReferences()) {
+					//p.p("found for "+v.toString()+">> "+data[0]+data[1]+data[2]);
 					model.addElement(verseBlock(data));
 				}
 			}
 		}
 	}
 	
-	private String verseBlock(int[] data) {
+	private String verseBlock(int id) {
+		int[] data = Bible.Book_Verses.getData(id);
 		return Bible.Book_Verses.MAP.get(data[0])+" "+data[1]+": "+data[2];
 	}
 	

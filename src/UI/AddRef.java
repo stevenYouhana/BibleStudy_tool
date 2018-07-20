@@ -83,7 +83,7 @@ public class AddRef {
 					ar.Go();
 					Bible.mass_verses.forEach(e -> {
 						if(Arrays.equals(e.getVerseData(),tempVerseLiteral)) {
-							e.addReferences(Home.generateVerseCode);
+							e.addReferences(Bible.Book_Verses.getID(Home.generateVerseCode));
 						}
 					});
 					Home.generateVerseCode = null;	//resetting verse code

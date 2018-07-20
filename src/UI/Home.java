@@ -165,6 +165,7 @@ public class Home extends JFrame implements Runnable {
 			JButton[] buttons = {btnAddVerse, btnAddComment, btnAddRef};
 			@Override
 				public void actionPerformed(ActionEvent arg0) {
+					utilities.disable_buttons(buttons);
 					AddRef.VerseRef vr = new AddRef.VerseRef();
 					utilities.disable_buttons(buttons);
 					vr.run();
@@ -239,7 +240,7 @@ public class Home extends JFrame implements Runnable {
 		VerseData vd; 
 		@Override
 		public void valueChanged(ListSelectionEvent arg0) {
-			try {	
+			//try {	
 				if(verses.getSelectedIndex() != -1) {
 					vd = new VerseData(verses.getSelectedValue());
 					vd.setData();
@@ -249,16 +250,16 @@ public class Home extends JFrame implements Runnable {
 				else {
 					txtCommentary.setText(COMMENTARY);
 				}
-			}
-			catch(ArrayIndexOutOfBoundsException aioobe) {
-				System.out.println("ERR: aioobe"+aioobe);
-			}
-			catch(NullPointerException npe) {
-				System.out.println("ERR: "+npe+"\nPlease select a book");
-			}
-			catch(Exception e) {
-					System.out.println("Unkown ERR e: "+e); 
-			}
+			//}
+//			catch(ArrayIndexOutOfBoundsException aioobe) {
+//				System.out.println("ERR: aioobe"+aioobe);
+//			}
+//			catch(NullPointerException npe) {
+//				System.out.println("ERR: "+npe+"\nPlease select a book");
+//			}
+//			catch(Exception e) {
+//					System.out.println("Unkown ERR e: "+e); 
+//			}
 		}
 	
 	}

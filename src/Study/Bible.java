@@ -19,8 +19,8 @@ public class Bible {
 //load all books
 	{
 		books = DB_Ops.GET_BOOKS();
-		
 	}
+	
 	public static Bible getInstant(){
 		if(instant == null) {
 			instant = new Bible();
@@ -70,6 +70,20 @@ public class Bible {
 				//pop MAP also
 				MAP.put(b.getBooknum(), b.getTitle());
 			}
+		}
+		public static int getID(int[] data) {
+			for(Verse verse : mass_verses) {
+				if(Arrays.equals(verse.getVerseData(),data))
+					return verse.getID();
+			}
+			return 0;
+		}
+		public static int[] getData(int id) {
+			for(Verse verse : mass_verses) {
+				if(verse.getID() == id)
+					return verse.getVerseData();
+			}
+			return null;
 		}
 	}
 	public static class Book_Comments {
