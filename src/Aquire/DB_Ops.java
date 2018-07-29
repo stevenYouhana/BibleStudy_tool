@@ -1,5 +1,6 @@
 package Aquire;
 import java.util.List;
+import java.sql.Array;
 import java.sql.Connection;
 import java.sql.PreparedStatement;
 import java.sql.SQLException;
@@ -185,17 +186,18 @@ public class DB_Ops {
 	}
 	
 	// USED IN Bible.Referencing
-	public void addParrentVerse(int childID, int parentID) {
-		String sql = "UPDATE material.Verse SET parent_verse = ";
-				sql += String.valueOf(childID);
-				sql += "WHERE verse_id = ";
-				sql += String.valueOf(parentID)+";";
+	public void addParrentVerse(int childID, int pointer) {
+		String sql = "UPDATE material.Verse SET parent_verse = array_append(parent_verse,";
+				sql += pointer;
+				sql += " WHERE verse_id = ";
+				sql += childID;
 				
 		try(Connection con = DB_Connector.connect()){
 			Statement stmnt = con.createStatement(ResultSet.
                     TYPE_SCROLL_INSENSITIVE, ResultSet.CONCUR_UPDATABLE);
 			
 			stmnt.executeUpdate(sql);
+			p.p("executing aaddPar for child: "+childID+ " parID: "+pointer);
 		}
 		catch(SQLException sqle) {
 			System.out.println("addParent: sqle----"+sqle);
@@ -207,26 +209,27 @@ public class DB_Ops {
 	
 	public final void INIT_REF_LIST() {
 		/* 
-		 * get results for [parent_verse] from verse table
-		 * for each available [parent_verse] check 'verse'
-		 * add verse data of the [parent_verse] to java Verse:references list of 'verse'
-		 * repeat for all result set
+		 * select all from table that contain parent verse
+		 * add data to map (for each verse_id, add all verses pointing_to
 		 */
 		class All_Records {
 
 			String sql = null;
-			List<Integer> generalData = new LinkedList<Integer>();
-			int tempParent = 0;
+			Map <Integer,Integer[]> map = new HashMap<Integer,Integer[]>();
+			Integer[] pointers;
 			
-			public void setGeneral_Data() {
+			private void mapPointers() {
 				ResultSet rs = null;
 				Statement stmnt;
+				
 				try(Connection con = DB_Connector.connect()) {
-					sql = "SELECT verse_id FROM material.verse WHERE parent_verse <> 0;";	
+					p.p("mapping!!");
+					sql = "SELECT verse_id, point_to FROM material.verse WHERE point_to <> ARRAY[0];";	
 					stmnt = con.createStatement();
 					rs = stmnt.executeQuery(sql);
 					while(rs.next()) {
-						generalData.add(rs.getInt("verse_id"));
+						pointers = (Integer[]) rs.getArray("point_to").getArray();
+						map.put(rs.getInt("verse_id"), pointers);
 					}
 				}
 				catch(SQLException sqle) {
@@ -238,36 +241,22 @@ public class DB_Ops {
 				
 			}
 			
-			public void getAccording() {
-				ResultSet rs = null;
-				Statement stmnt = null;
-				sql = "SELECT parent_verse FROM material.verse;";
-				
-				try(Connection con = DB_Connector.connect()) {
-					stmnt = con.createStatement();
-					rs = stmnt.executeQuery(sql);
-					
-					while(rs.next()) {
-						tempParent = rs.getInt("parent_verse");
-						generalData.forEach( (id) -> {
-							if(tempParent == id)
-								Bible.mass_verses.forEach( (storedVerse) -> {
-									if(storedVerse.getID() == id)
-										storedVerse.addReferences(tempParent);
-								});
-						});
-					}
-				}
-				catch(Exception e) {
-					e.getStackTrace();
-				}
+			public void alocatePointers_VerseClass() {
+				mapPointers();
+				map.forEach( (verse, pointers) -> {
+					Bible.mass_verses.forEach(javaVerse -> {
+						if(javaVerse.getID() == verse)
+						for(int pointer : pointers) {
+							javaVerse.addReferences(pointer);
+							p.p("AP_VC>>> ID: "+verse+ "   pointer: "+pointer);
+						}
+						
+					});
+				});
 			}
-		
-			
 		}
 		All_Records records = new All_Records();
-		records.setGeneral_Data();
-		records.getAccording();
+		records.alocatePointers_VerseClass();
 		
 	}
 	

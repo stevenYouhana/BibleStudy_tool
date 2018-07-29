@@ -14,6 +14,8 @@ import javax.swing.event.ListSelectionListener;
 import Aquire.DB_Ops;
 import Study.Bible;
 import Study.Book;
+import UI.RefedVerses.TestClass;
+import Utility.Log;
 
 public class Home extends JFrame implements Runnable {
 	/**
@@ -29,7 +31,8 @@ public class Home extends JFrame implements Runnable {
 	final Bible.Book_Verses BOOK_VERSES = new Bible.Book_Verses();
 	final Bible.Book_Comments BOOK_COMMENTS = new Bible.Book_Comments();
 	final Bible.Referencing referencing = new Bible.Referencing();
-	private RefedVerses refedVerses;
+	Props refedVerses;
+	Log p = new Log();
 	Utilities utilities = new Utilities();
 	MessageBox msgbox = new MessageBox(this);
 	//existing
@@ -89,6 +92,7 @@ public class Home extends JFrame implements Runnable {
 		refedVerses = new RefedVerses(this, lstRef, model);
 		//call update at verse change
 		}
+		
 		pnlNorth.add(refedVerses.getListing());
 		pnlNorth.add(scrBooks);
 		pnlNorth.add(loadedVerses.scrl);
@@ -193,6 +197,7 @@ public class Home extends JFrame implements Runnable {
 				selectedBook = BIBLE.getBooks()[books.getSelectedIndex()];
 				loadedVerses.updateList(BIBLE.selectBook(books.getSelectedValue()));
 			}
+			p.p("book change!");
 			generateVerseCode = null;	//reseting verseCode
 		}
 	}
@@ -241,11 +246,14 @@ public class Home extends JFrame implements Runnable {
 		@Override
 		public void valueChanged(ListSelectionEvent arg0) {
 			//try {	
+			int[] fakeData = {44,44,44};
+			//Fake fake = new FakeProp();
 				if(verses.getSelectedIndex() != -1) {
 					vd = new VerseData(verses.getSelectedValue());
 					vd.setData();
 					txtCommentary.setText(BOOK_COMMENTS.getVerse(generateVerseCode));
-					refedVerses.update(generateVerseCode);
+					refedVerses.update(fakeData);
+
 				}
 				else {
 					txtCommentary.setText(COMMENTARY);

@@ -4,6 +4,8 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.concurrent.atomic.AtomicInteger;
 
+import Utility.Log;
+
 public class Book {
 	
 	public enum Testament {
@@ -14,7 +16,7 @@ public class Book {
 	private final int booknum;
 	private ArrayList<Verse> verses = new ArrayList<>(100); //LinkedList?
 	public static Testament testament = null;
-	
+	public Log p = new Log();
 	public Book(String title, Testament testament) {
 		booknum = COUNTER.incrementAndGet();
 		this.title = title;
@@ -65,4 +67,5 @@ public class Book {
 		}
 		return null;
 	}
+	
 }

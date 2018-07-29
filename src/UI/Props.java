@@ -13,7 +13,7 @@ public abstract class Props {
 	JFrame frame;
 	JList<String> list;
 	DefaultListModel<String> model;
-	public Log p;
+	public Log p = new Log();
 	
 	Props(JFrame frame, JList<String> list, DefaultListModel<String> model) {
 		this(frame);
@@ -25,6 +25,12 @@ public abstract class Props {
 	Props(JFrame frame) {
 		this.frame = frame;
 	}
+	Props(){
+		
+	}
+	abstract void update(int[] verseData);
+	abstract JList<String> getListing(); 
+	
 }
 
 class RefedVerses extends Props {
@@ -32,9 +38,14 @@ class RefedVerses extends Props {
 	public RefedVerses(JFrame frame, JList<String> list, DefaultListModel<String> model) {
 		super(frame,list,model);
 	}
+	public RefedVerses() {
+		
+	}
 	
+	@Override
 	public void update(int[] verseData) {
-		model.clear();
+		//model.clear();
+		p.p("verseData: "+verseData[0]);
 		for(Verse v : Bible.mass_verses) {
 			if(Arrays.equals(verseData, v.getVerseData()) && 
 					!(v.getReferences().isEmpty())) {
@@ -51,8 +62,14 @@ class RefedVerses extends Props {
 		return Bible.Book_Verses.MAP.get(data[0])+" "+data[1]+": "+data[2];
 	}
 	
+	@Override
 	public JList<String> getListing() {
 		return list;
+	}
+	public class TestClass {
+		public void test(int[] data) {
+			p.p("TEST METHOD "+data[0]);
+		}
 	}
 }
 
