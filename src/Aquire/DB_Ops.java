@@ -22,6 +22,7 @@ import Study.Verse;
 
 public class DB_Ops {
 	Utility.Log p = new Utility.Log();
+	
 	public static final Book[] GET_BOOKS() {
 		final class Testiment {
 			Book.Testament testiment;
@@ -54,11 +55,12 @@ public class DB_Ops {
 		}
 		return books;
 	}
-	public static final DefaultListModel<String> GET_BOOKS_MODEL() {
-	DefaultListModel<String> model = new DefaultListModel<String>();
+	public static final void SET_BOOKS_MODEL(DefaultListModel<String> model) {
+		Utility.Log p = new Utility.Log();
+
 		try(Connection con = DB_Connector.connect()){
 			Statement stmt = con.createStatement();
-			ResultSet rs = stmt.executeQuery("SELECT * FROM material.Book;");
+			ResultSet rs = stmt.executeQuery("SELECT booktitle FROM material.Book;");
 			while(rs.next()) {
 				model.addElement(rs.getString("booktitle"));
 			}
@@ -69,8 +71,8 @@ public class DB_Ops {
 		catch(Exception e) {
 			System.out.println("GET_BOOKS_MODEL");
 		}
-		return model;
 	}
+	
 	public ArrayList<Verse> getVersesFor(Book b) {
 		ArrayList<Verse> verses = new ArrayList<Verse>(50);
 		Verse verse = null;
@@ -186,18 +188,19 @@ public class DB_Ops {
 	}
 	
 	// USED IN Bible.Referencing
-	public void addParrentVerse(int childID, int pointer) {
-		String sql = "UPDATE material.Verse SET parent_verse = array_append(parent_verse,";
+	public void addParrentVerse(int actual, int pointer) {
+		p.p("DB_OPs >> adding :"+actual+" to "+pointer);
+		String sql = "UPDATE material.verse SET point_to = array_append(point_to, ";
 				sql += pointer;
-				sql += " WHERE verse_id = ";
-				sql += childID;
+				sql += ") WHERE verse_id = ";
+				sql += actual + ";";
 				
 		try(Connection con = DB_Connector.connect()){
 			Statement stmnt = con.createStatement(ResultSet.
                     TYPE_SCROLL_INSENSITIVE, ResultSet.CONCUR_UPDATABLE);
 			
 			stmnt.executeUpdate(sql);
-			p.p("executing aaddPar for child: "+childID+ " parID: "+pointer);
+			p.p("executing aaddPar for child: "+actual+ " parID: "+pointer);
 		}
 		catch(SQLException sqle) {
 			System.out.println("addParent: sqle----"+sqle);
@@ -248,16 +251,13 @@ public class DB_Ops {
 						if(javaVerse.getID() == verse)
 						for(int pointer : pointers) {
 							javaVerse.addReferences(pointer);
-							p.p("AP_VC>>> ID: "+verse+ "   pointer: "+pointer);
 						}
-						
 					});
 				});
 			}
 		}
 		All_Records records = new All_Records();
 		records.alocatePointers_VerseClass();
-		
 	}
 	
 }

@@ -126,7 +126,7 @@ public class Bible {
 		}
 	}
 	public static class Referencing {
-		int beingRefed, toRef;
+		int pointer, actual;
 		int[] addedVerse = null;
 		static Map<int[],Integer> dataToId;
 		final DB_Ops db = new DB_Ops();
@@ -136,8 +136,8 @@ public class Bible {
 		}
 		
 		public Referencing() {
-			beingRefed = -1;
-			toRef  = -1;
+			pointer = -1;
+			actual  = -1;
 			if(dataToId == null)
 				dataToId = new HashMap<int[],Integer>(db.GET_DATAtoID_MAP());
 		}
@@ -148,21 +148,21 @@ public class Bible {
 			);
 		}
 
-		public void addReference(int[] toRefData, int[] beingRefedData) {
-			beingRefed = -1;
-			toRef = -1;
-			dataToId.forEach((k,v) -> {
-				if((Arrays.equals(toRefData, k) || (Arrays.equals(beingRefedData, k)))) {
-					if(Arrays.equals(toRefData, k)) {
-						toRef = v.intValue();
+		public void addReference(int[] actualData, int[] pointerData) {
+			pointer = -1;
+			actual = -1;
+			dataToId.forEach((data,id) -> {
+				if((Arrays.equals(actualData, data) || (Arrays.equals(pointerData, data)))) {
+					if(Arrays.equals(actualData, data)) {
+						actual = id.intValue();
 					}
 					else {
-						beingRefed = v.intValue();
+						pointer = id.intValue();
 					}
 				}
-				if(beingRefed != -1 && toRef != -1) return;
+				if(pointer != -1 && actual != -1) return;
 			});
-			db.addParrentVerse(beingRefed, toRef);
+			db.addParrentVerse(actual, pointer);
 		}
 		
 		public void addVerse(int[] newVerse) {
