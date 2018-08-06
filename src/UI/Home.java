@@ -1,15 +1,11 @@
 package UI;
 
+import javax.swing.*;
+
 import java.awt.Dimension;
 import java.awt.BorderLayout;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
-import java.util.regex.Matcher;
-import java.util.regex.Pattern;
-
-import javax.swing.*;
-import javax.swing.event.ListSelectionEvent;
-import javax.swing.event.ListSelectionListener;
 
 import Aquire.DB_Ops;
 import Study.Bible;
@@ -30,21 +26,21 @@ public class Home extends JFrame implements Runnable {
 	final Bible.Book_Verses BOOK_VERSES = new Bible.Book_Verses();
 	final static Bible.Book_Comments BOOK_COMMENTS = new Bible.Book_Comments();
 	final Bible.Referencing referencing = new Bible.Referencing();
+	static Book selectedBook = null;
 	
 	//PROPS
 	final Props BOOK_LIST = BookList.getInstant(this);
-	Props refedVerses;
 	Props verseList;
+	Props refedVerses;
 	
-	
+	//Utilities
 	Log p = new Log();
 	Utilities utilities = new Utilities();
 	MessageBox msgbox = new MessageBox(this);
-	//existing
-	
-	//LoadedVerses loadedVerses = new LoadedVerses();
+
+	//Features
 	JFrame frame = new JFrame("Home");
-	//Add
+
 	JButton btnAddVerse = new JButton("add verse");
 	JButton btnAddComment = new JButton("add comment");
 	JButton btnAddRef = new JButton("add reference");
@@ -67,26 +63,12 @@ public class Home extends JFrame implements Runnable {
 	
 	//DATABASE
 	DB_Ops db = new DB_Ops();
-	static Book selectedBook = null;
 	
 	public Home() {
 		this.run();//take to main
 	}
 	public static final Bible.Book_Comments get_BOOK_COMMENTS() {
 		return BOOK_COMMENTS;
-	}
-	
-	public void getVC() {
-		if(generateVerseCode == null) {
-			System.out.println("VC IS NULL");
-			return;
-		}
-		System.out.println(
-				"verseCode: "+
-						generateVerseCode[0]+
-						generateVerseCode[1]+
-						generateVerseCode[2]
-						);
 	}
 	
 	@Override
@@ -103,9 +85,8 @@ public class Home extends JFrame implements Runnable {
 		lstVerses.setPreferredSize(new Dimension(400,200));
 		lstRef.setPreferredSize(new Dimension(150,400));
 		
-		refedVerses = new RefedVerses(this, lstRef, new DefaultListModel<String>());
-		verseList = new VerseList(this, lstVerses, new DefaultListModel<String>());
-
+		verseList = new VerseList(this, lstVerses, txtCommentary);
+		refedVerses = new RefedVerses(this, lstRef);
 		}
 		
 		
@@ -129,7 +110,6 @@ public class Home extends JFrame implements Runnable {
 		//super.getContentPane().add(pnlEst, BorderLayout.EAST);
 		BOOK_VERSES.initVerses();
 		BOOK_COMMENTS.initComments();
-		BOOK_COMMENTS.recall();
 		db.INIT_REF_LIST();
 		BOOK_LIST.run();
 		verseList.run();
@@ -182,7 +162,6 @@ public class Home extends JFrame implements Runnable {
 				catch(Exception ex) {
 					System.out.println("ex addCommentBTN: "+ex);
 				}
-				BOOK_COMMENTS.recall();
 			}
 		});
 		btnAddRef.addActionListener(new ActionListener() {
@@ -202,74 +181,5 @@ public class Home extends JFrame implements Runnable {
 		super.setDefaultCloseOperation(DISPOSE_ON_CLOSE);
 	}
 	
-//	protected class LoadedVerses implements ListSelectionListener {
-//		JList<String> verses = new JList<String>();
-//		JScrollPane scrl = new JScrollPane(verses);
-//		private Book book =  new Book();
-//		{
-//			verses.setPreferredSize(new Dimension(400,200));
-//			scrl.setPreferredSize(new Dimension(400,200));
-//			book = BIBLE.getBooks()[0];	//default to Genesis
-//			updateList(book);
-//			verses.addListSelectionListener(this);
-//		}
-//		protected void updateList(Book b) {
-//			DefaultListModel<String> model = new DefaultListModel<String>();
-//			for(Study.Verse v : b.getVerses()) {
-//				model.addElement(v.getVerseStack());
-//			}
-//			verses.setModel(model);
-//		}
-//		class VerseData {
-//			String verse = null;
-//							//			"###: ### "
-//			private final String DATA = "^(\\d{1,3})([:]\\s)((\\d){1,3}\\s)";
-//			private Pattern pattern = Pattern.compile(DATA);
-//			Matcher matcher;
-//			
-//			public VerseData(String verse) {
-//				this.verse = verse;
-//				if(verse != null) {
-//					matcher = pattern.matcher(verse);
-//				}
-//			}
-//			public void setData() { 
-//				if(matcher.find()) {
-//					generateVerseCode = new int[3];
-//					generateVerseCode[0] = selectedBook.getBooknum();
-//					generateVerseCode[1] = Integer.parseInt(matcher.group(1));
-//					generateVerseCode[2] = Integer.parseInt(matcher.group(3).toString().substring(0,
-//                            matcher.group(3).toString().length()-1));
-//				}
-//			}
-//		}
-//		VerseData vd; 
-//		@Override
-//		public void valueChanged(ListSelectionEvent arg0) {
-//			//try {	
-//			//Fake fake = new FakeProp();
-//				if(verses.getSelectedIndex() != -1) {
-//					vd = new VerseData(verses.getSelectedValue());
-//					vd.setData();
-//					txtCommentary.setText(BOOK_COMMENTS.getVerse(generateVerseCode));
-//					refedVerses.update();
-//
-//				}
-//				else {
-//					txtCommentary.setText(COMMENTARY);
-//				}
-			//}
-//			catch(ArrayIndexOutOfBoundsException aioobe) {
-//				System.out.println("ERR: aioobe"+aioobe);
-//			}
-//			catch(NullPointerException npe) {
-//				System.out.println("ERR: "+npe+"\nPlease select a book");
-//			}
-//			catch(Exception e) {
-//					System.out.println("Unkown ERR e: "+e); 
-//			}
-//		}
-	
-//	}
 	
 }

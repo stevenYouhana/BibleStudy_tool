@@ -1,6 +1,5 @@
 package Study;
 
-import java.util.List;
 import java.util.Arrays;
 import java.util.HashMap;
 import java.util.LinkedList;
@@ -100,11 +99,7 @@ public class Bible {
 			}
 			return false;
 		}
-		public void recall() {
-			comments.forEach((k, v) -> {
-				System.out.println("rec: "+k[0]+k[1]+k[2]+": "+v);
-			});
-		}
+		
 		public void addComment(int[] verseData, String comment) {
 			//check for existing
 			for(Map.Entry<int[], String> entry : comments.entrySet()) {
@@ -179,18 +174,6 @@ public class Bible {
 				System.out.println("removeVerse(): "+e);
 			}
 		}
-		public void getVC(int[] data) {
-			if(data == null) {
-				System.out.println("VC IS NULL");
-				return;
-			}
-			System.out.println(
-					"verseCode: "+
-							data[0]+
-							data[1]+
-							data[2]
-							);
-			}
 		public void recall() {
 			dataToId.forEach((k, v) -> {
 				System.out.println("dataToId: "+k[0]+k[1]+k[2]+": "+v);

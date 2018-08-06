@@ -1,6 +1,5 @@
 package UI;
 
-import java.util.Arrays;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
@@ -11,26 +10,22 @@ import javax.swing.JTextArea;
 import javax.swing.event.ListSelectionEvent;
 import javax.swing.event.ListSelectionListener;
 
-import Aquire.DB_Ops;
 import Study.Bible;
-import Study.Book;
-import Study.Verse;
 import Utility.Log;
 
 public abstract class Props {
 	protected JFrame frame;
 	protected JList<String> list;
-	protected DefaultListModel<String> model = new DefaultListModel<String>();
 	Operations ops = new Operations();
 	
 	public Log p = new Log();
 	
-	Props(JFrame frame, JList<String> list, DefaultListModel<String> model) {
-		this(frame);
+	Props(JFrame frame, JList<String> list) {
+		this.frame = frame;
 		this.list = list;
-		this.model = model;
-		this.list.setModel(this.model);
+
 	}
+	
 	Props(JFrame frame) {
 		this.frame = frame;
 	}
@@ -40,8 +35,6 @@ public abstract class Props {
 	
 	abstract void setModel();
 	abstract JList<String> getListing();
-	abstract DefaultListModel<String> getModel();
-	abstract void addElement(String el);
 	abstract void run();
 	
 }
@@ -66,6 +59,7 @@ class BookList extends Props implements ListSelectionListener, Runnable {
 		return instant;
 		
 	}
+
 	public static BookList getInstant() {
 		if(instant != null) {
 			return instant;
@@ -88,6 +82,9 @@ class BookList extends Props implements ListSelectionListener, Runnable {
 		p.p("book change");
 		Home.selectedBook = ops.getSelectedBook(BOOK_LIST.getSelectedValue());
 		p.p("sel book: "+Home.selectedBook);
+		ops.setVerseList(Home.selectedBook);
+		VerseList.getInstant().getListing().setModel(
+				ops.setVerseList(Home.selectedBook));
 	}
 	public void run() {
 		this.setModel();
@@ -106,36 +103,42 @@ class BookList extends Props implements ListSelectionListener, Runnable {
 class VerseList extends Props implements ListSelectionListener, Runnable {
 	final String COMMENTARY = "enter your comments...";
 	JTextArea txtComment = new JTextArea(COMMENTARY);
+	private static VerseList instant = null;
 	
-	public VerseList(JFrame frame, JList<String> list, DefaultListModel<String> model) {
-		super(frame,list,model);
-		
+	private VerseList(JFrame frame, JList<String> list) {
+		super(frame,list);
+		instant = this;
 		
 	}
-	public VerseList(JFrame frame, JList<String> list, DefaultListModel<String> model
-			,JTextArea txtComment) {
-		this(frame, list, model);
+	public VerseList(JFrame frame, JList<String> list,JTextArea txtComment) {
+		this(frame, list);
+	}
+	private VerseList() {
+		
+	}
+
+	public static VerseList getInstant() {
+		if(instant != null) {
+			return instant;
+		}
+		return null;
 	}
 	
-	public VerseList() {
-		
-	}
-	public DefaultListModel<String> getModel() {
-		return model;
-	}
 	@Override
 	public void setModel() {
-
+		
 	}
 	
 	VerseData vd;
 	@Override
 	public void valueChanged(ListSelectionEvent arg0) {
+		p.p("verse changed");
 		if(list.getSelectedIndex() != -1) {
 			vd = new VerseData(list.getSelectedValue());
 			vd.setData();
 			txtComment.setText(Home.BOOK_COMMENTS.getVerse(Home.generateVerseCode));
-
+			RefedVerses.getInstant().getListing().setModel(
+					ops.setRefList(Home.generateVerseCode));
 		}
 		else {
 			txtComment.setText(COMMENTARY);
@@ -143,15 +146,13 @@ class VerseList extends Props implements ListSelectionListener, Runnable {
 	}
 	@Override
 	public JList<String> getListing(){
-		return list;
+		return list; 
 	}
-	public void addElement(String el) {
-		model.addElement(el);
-	}
+	
 	@Override
 	public void run() {
 		p.p("running verse list..");
-		
+		list.addListSelectionListener(this);
 	}
 	
 	class VerseData {
@@ -180,41 +181,34 @@ class VerseList extends Props implements ListSelectionListener, Runnable {
 }
 
 class RefedVerses extends Props {
-	public RefedVerses(JFrame frame, JList<String> list, DefaultListModel<String> model) {
-		super(frame,list,model);
+	private static RefedVerses instant = null;
+	
+	public RefedVerses(JFrame frame, JList<String> list) {
+		super(frame,list);
+		instant = this;
 	}
-	public RefedVerses() {
+	private RefedVerses() {
 		
 	}
 	@Override
 	public void setModel() {
-		model.clear();
-		for(Verse v : Bible.mass_verses) {
-			if(Arrays.equals(Home.generateVerseCode, v.getVerseData()) && 
-					!(v.getReferences().isEmpty())) {
-				for(int id : v.getReferences()) {
-					p.p("adding: "+verseBlock(id));
-					model.addElement(verseBlock(id));
-				}
-			}
+		
+	}
+	//return Prop and add as an abstract method?
+
+	protected static RefedVerses getInstant() {
+		if(instant != null) {
+			return instant;
 		}
+		return null;
 	}
 	
-	private String verseBlock(int id) {
-		int[] data = Bible.Book_Verses.getData(id);
-		return Bible.Book_Verses.MAP.get(data[0])+" "+data[1]+": "+data[2];
-	}
 	
 	@Override
 	public JList<String> getListing() {
 		return list;
 	}
-	public DefaultListModel<String> getModel() {
-		return model;
-	}
-	public void addElement(String el) {
-		model.addElement(el);
-	}
+	
 	@Override
 	public void run() {
 		
