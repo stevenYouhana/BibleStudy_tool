@@ -17,4 +17,8 @@ public class Log {
 						generateVerseCode[2]
 						);
 	}
+	public void p(String stmt, int data[]){
+		this.p(stmt); 
+		this.p(data);
+	}
 }

@@ -26,7 +26,6 @@ public class Bible {
 		}
 		return instant;
 	}
-
 	//select procedure
 	public Book selectBook(String title) {
 		int i = 0;
@@ -173,11 +172,6 @@ public class Bible {
 			catch(Exception e) {
 				System.out.println("removeVerse(): "+e);
 			}
-		}
-		public void recall() {
-			dataToId.forEach((k, v) -> {
-				System.out.println("dataToId: "+k[0]+k[1]+k[2]+": "+v);
-			});
 		}
 		
 	}

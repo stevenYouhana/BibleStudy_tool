@@ -1,5 +1,6 @@
 package UI;
 
+import java.util.Arrays;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
@@ -11,6 +12,7 @@ import javax.swing.event.ListSelectionEvent;
 import javax.swing.event.ListSelectionListener;
 
 import Study.Bible;
+import UI.Operations.DisplayRef;
 import Utility.Log;
 
 public abstract class Props {
@@ -94,15 +96,15 @@ class BookList extends Props implements ListSelectionListener, Runnable {
 	public DefaultListModel<String> getModel() {
 		return BOOK_MODEL;
 	}
-	public void addElement(String el) {
-		//NOT USED
-	}
 	
 }
 
 class VerseList extends Props implements ListSelectionListener, Runnable {
 	final String COMMENTARY = "enter your comments...";
+	final String ACTUAL_VERSE = "enter your comments...";
+	JTextArea txtActualVerse;
 	JTextArea txtComment = new JTextArea(COMMENTARY);
+	
 	private static VerseList instant = null;
 	
 	private VerseList(JFrame frame, JList<String> list) {
@@ -110,8 +112,10 @@ class VerseList extends Props implements ListSelectionListener, Runnable {
 		instant = this;
 		
 	}
-	public VerseList(JFrame frame, JList<String> list,JTextArea txtComment) {
+	public VerseList(JFrame frame, JList<String> list,JTextArea txtActualVerse, JTextArea txtComment) {
 		this(frame, list);
+		this.txtActualVerse = txtActualVerse;
+		this.txtComment = txtComment;
 	}
 	private VerseList() {
 		
@@ -132,13 +136,18 @@ class VerseList extends Props implements ListSelectionListener, Runnable {
 	VerseData vd;
 	@Override
 	public void valueChanged(ListSelectionEvent arg0) {
-		p.p("verse changed");
 		if(list.getSelectedIndex() != -1) {
 			vd = new VerseData(list.getSelectedValue());
 			vd.setData();
+			//**********SET COMMENT***********
 			txtComment.setText(Home.BOOK_COMMENTS.getVerse(Home.generateVerseCode));
 			RefedVerses.getInstant().getListing().setModel(
 					ops.setRefList(Home.generateVerseCode));
+			//**********SET VERSE TEXT***********
+			Bible.mass_verses.forEach( (verse) -> {
+				if(Arrays.equals(verse.getVerseData(),Home.generateVerseCode))
+					txtActualVerse.setText(verse.toString());
+			});
 		}
 		else {
 			txtComment.setText(COMMENTARY);
@@ -180,9 +189,9 @@ class VerseList extends Props implements ListSelectionListener, Runnable {
 	}
 }
 
-class RefedVerses extends Props {
+class RefedVerses extends Props implements Runnable, ListSelectionListener {
 	private static RefedVerses instant = null;
-	
+	Operations.DisplayRef displayRef;
 	public RefedVerses(JFrame frame, JList<String> list) {
 		super(frame,list);
 		instant = this;
@@ -194,7 +203,6 @@ class RefedVerses extends Props {
 	public void setModel() {
 		
 	}
-	//return Prop and add as an abstract method?
 
 	protected static RefedVerses getInstant() {
 		if(instant != null) {
@@ -203,7 +211,6 @@ class RefedVerses extends Props {
 		return null;
 	}
 	
-	
 	@Override
 	public JList<String> getListing() {
 		return list;
@@ -211,7 +218,15 @@ class RefedVerses extends Props {
 	
 	@Override
 	public void run() {
-		
+		list.addListSelectionListener(this);
+	}
+	@Override
+	public void valueChanged(ListSelectionEvent arg0) {
+		if(list.getSelectedIndex() != -1) {
+			p.p("change in REF");
+			displayRef = new Operations.DisplayRef(list.getSelectedValue());
+			p.p("dispRef: "+displayRef.displayRefed());
+		}
 	}
 	
 }

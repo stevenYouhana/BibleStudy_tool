@@ -22,6 +22,8 @@ public class Home extends JFrame implements Runnable {
 	
 	final String COMMENTARY = "enter your comments...";
 	final String VERSE = "Write the actual verse...";
+	final String REFED_VERSE = "referenced verse";
+	
 	protected static int[] generateVerseCode;
 	final Bible.Book_Verses BOOK_VERSES = new Bible.Book_Verses();
 	final static Bible.Book_Comments BOOK_COMMENTS = new Bible.Book_Comments();
@@ -30,8 +32,9 @@ public class Home extends JFrame implements Runnable {
 	
 	//PROPS
 	final Props BOOK_LIST = BookList.getInstant(this);
-	Props verseList;
-	Props refedVerses;
+	private Props verseList;
+	private Props refedVerses;
+	
 	
 	//Utilities
 	Log p = new Log();
@@ -40,16 +43,17 @@ public class Home extends JFrame implements Runnable {
 
 	//Features
 	JFrame frame = new JFrame("Home");
-
+	
 	JButton btnAddVerse = new JButton("add verse");
 	JButton btnAddComment = new JButton("add comment");
 	JButton btnAddRef = new JButton("add reference");
 	JTextField txtCh = new JTextField("Ch");
 	JTextField txtVNum = new JTextField("Verse Number");
 	JTextArea txtCommentary = new JTextArea(COMMENTARY);
-	JScrollPane scrCommentary = new JScrollPane(txtCommentary);
 	
 	JTextArea txtActualVerse = new JTextArea(VERSE);
+	JTextArea txtRefedVerse = new JTextArea(REFED_VERSE);
+	
 	
 	JList<String> lstBooks = new JList<String>();
 	JList<String> lstVerses = new JList<String>();
@@ -73,47 +77,53 @@ public class Home extends JFrame implements Runnable {
 	
 	@Override
 	public void run() {
+		// ***********         PROPS         *************
+		{
+		
+		verseList = new VerseList(this, lstVerses, txtActualVerse, txtCommentary);
+		refedVerses = new RefedVerses(this, lstRef);
+		}
+		JScrollPane scrCommentary = new JScrollPane(txtCommentary);
+		JScrollPane scrBooks = new JScrollPane(BOOK_LIST.getListing());
+		JScrollPane scrVerses = new JScrollPane(VerseList.getInstant().getListing());
+		
+		//		******SCRL SIZING******
+		{
 		super.setSize(900, 1000);
 		txtCh.setPreferredSize(new Dimension(100,30));
 		txtVNum.setPreferredSize(new Dimension(100,30));
-		txtActualVerse.setPreferredSize(new Dimension(400,200));
-		
-		scrCommentary.setPreferredSize(new Dimension(400,200));
-		// ***********         PROPS         *************
-		{
+		txtActualVerse.setPreferredSize(new Dimension(300,300));
+		txtRefedVerse.setPreferredSize(new Dimension(300,250));
+		//		******LISTS******
 		lstBooks.setPreferredSize(new Dimension(150,400));
-		lstVerses.setPreferredSize(new Dimension(400,200));
-		lstRef.setPreferredSize(new Dimension(150,400));
-		
-		verseList = new VerseList(this, lstVerses, txtCommentary);
-		refedVerses = new RefedVerses(this, lstRef);
-		}
-		
-		
-		JScrollPane scrBooks = new JScrollPane(BOOK_LIST.getListing());
+		lstVerses.setPreferredSize(new Dimension(300,300));
+		lstRef.setPreferredSize(new Dimension(110,400));
 		scrBooks.setPreferredSize(new Dimension(100,300));
-
-		
+		scrCommentary.setPreferredSize(new Dimension(300,300));
+		scrVerses.setPreferredSize(new Dimension(300,300));
+		}
 		pnlNorth.add(refedVerses.getListing());
-		pnlNorth.add(scrBooks);	// ADD SCRL THEN
-		pnlNorth.add(lstVerses);		// ADD SCRL THEN
+		pnlNorth.add(scrBooks);
+		pnlNorth.add(scrVerses);
+		pnlNorth.add(txtActualVerse);
 		pnlSth.add(btnAddVerse);
 		pnlNorth.add(scrCommentary);
 		pnlNorth.add(btnAddComment);
 		pnlSth.add(txtCh);
 		pnlSth.add(txtVNum);
-		pnlSth.add(txtActualVerse);
+		pnlSth.add(txtRefedVerse);
 		pnlSth.add(btnAddRef);
 		super.getContentPane().add(pnlNorth, BorderLayout.NORTH);
 		super.getContentPane().add(pnlSth, BorderLayout.SOUTH);
-		//super.getContentPane().add(pnlWst, BorderLayout.WEST);
-		//super.getContentPane().add(pnlEst, BorderLayout.EAST);
+
 		BOOK_VERSES.initVerses();
 		BOOK_COMMENTS.initComments();
 		db.INIT_REF_LIST();
 		BOOK_LIST.run();
 		verseList.run();
-		//BUTTONS ACTION
+		refedVerses.run();
+		
+		//***************BUTTONS ACTION******************
 		
 		btnAddVerse.addActionListener(new ActionListener() {
 			@Override
