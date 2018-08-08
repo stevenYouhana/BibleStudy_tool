@@ -1,0 +1,3 @@
+run .sql file:
+psql -d myDataBase -a -f myInsertFile
+psql -d biblestudy -a -f dbScript.sql

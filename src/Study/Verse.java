@@ -34,7 +34,7 @@ public class Verse {
 		return verseData[1]+": "+verseData[2]+" \""+actualVerse+"\""+"\n"+commentary;
 	}
 	public String getVerseStack() {
-		return verseData[1]+": "+verseData[2]+" \""+actualVerse;
+		return verseData[1]+": "+verseData[2]+" "+actualVerse;
 	}
 	public int[] getVerseData(){
 		return verseData;

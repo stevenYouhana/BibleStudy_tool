@@ -3,7 +3,10 @@ package UI;
 import javax.swing.*;
 
 import java.awt.Dimension;
+import java.awt.LayoutManager;
 import java.awt.BorderLayout;
+import java.awt.Component;
+import java.awt.Container;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 
@@ -13,9 +16,7 @@ import Study.Book;
 import Utility.Log;
 
 public class Home extends JFrame implements Runnable {
-	/**
-	 * 
-	 */
+
 	private static final long serialVersionUID = 1L;
 
 	private final static Bible BIBLE = Bible.getInstant();
@@ -34,7 +35,6 @@ public class Home extends JFrame implements Runnable {
 	final Props BOOK_LIST = BookList.getInstant(this);
 	private Props verseList;
 	private Props refedVerses;
-	
 	
 	//Utilities
 	Log p = new Log();
@@ -69,7 +69,7 @@ public class Home extends JFrame implements Runnable {
 	DB_Ops db = new DB_Ops();
 	
 	public Home() {
-		this.run();//take to main
+		this.run();//	*****take to main*****
 	}
 	public static final Bible.Book_Comments get_BOOK_COMMENTS() {
 		return BOOK_COMMENTS;
@@ -77,44 +77,57 @@ public class Home extends JFrame implements Runnable {
 	
 	@Override
 	public void run() {
+		pnlSth.setPreferredSize(new Dimension(180,180));
+		pnlWst.setPreferredSize(new Dimension(140,140));
 		// ***********         PROPS         *************
 		{
 		
 		verseList = new VerseList(this, lstVerses, txtActualVerse, txtCommentary);
-		refedVerses = new RefedVerses(this, lstRef);
+		refedVerses = new RefedVerses(this, lstRef, txtRefedVerse);
+		
 		}
 		JScrollPane scrCommentary = new JScrollPane(txtCommentary);
-		JScrollPane scrBooks = new JScrollPane(BOOK_LIST.getListing());
-		JScrollPane scrVerses = new JScrollPane(VerseList.getInstant().getListing());
+		JScrollPane scrBooks = new JScrollPane(BOOK_LIST.getListing(),
+				JScrollPane.VERTICAL_SCROLLBAR_ALWAYS,JScrollPane.HORIZONTAL_SCROLLBAR_NEVER);
+		JScrollPane scrVerses = new JScrollPane(VerseList.getInstant().getListing(),
+				JScrollPane.VERTICAL_SCROLLBAR_ALWAYS,JScrollPane.HORIZONTAL_SCROLLBAR_NEVER);
 		
 		//		******SCRL SIZING******
 		{
-		super.setSize(900, 1000);
+		super.setPreferredSize(new Dimension(10000,900));
 		txtCh.setPreferredSize(new Dimension(100,30));
 		txtVNum.setPreferredSize(new Dimension(100,30));
-		txtActualVerse.setPreferredSize(new Dimension(300,300));
-		txtRefedVerse.setPreferredSize(new Dimension(300,250));
+		txtActualVerse.setPreferredSize(new Dimension(250,300));
+		txtRefedVerse.setPreferredSize(new Dimension(200,200));
+		txtCommentary.setPreferredSize(new Dimension(250,300));
 		//		******LISTS******
 		lstBooks.setPreferredSize(new Dimension(150,400));
-		lstVerses.setPreferredSize(new Dimension(300,300));
+		lstVerses.setPreferredSize(new Dimension(250,300));
 		lstRef.setPreferredSize(new Dimension(110,400));
-		scrBooks.setPreferredSize(new Dimension(100,300));
+		scrBooks.setPreferredSize(new Dimension(115,300));
 		scrCommentary.setPreferredSize(new Dimension(300,300));
-		scrVerses.setPreferredSize(new Dimension(300,300));
+		scrVerses.setPreferredSize(new Dimension(250,300));
+		
+		//		*******SET******** 
+		txtActualVerse.setLineWrap(true);
+		txtCommentary.setLineWrap(true);
+		txtRefedVerse.setLineWrap(true);
+		txtRefedVerse.setEditable(false);
 		}
 		pnlNorth.add(refedVerses.getListing());
 		pnlNorth.add(scrBooks);
 		pnlNorth.add(scrVerses);
 		pnlNorth.add(txtActualVerse);
-		pnlSth.add(btnAddVerse);
+		pnlWst.add(btnAddVerse);
 		pnlNorth.add(scrCommentary);
-		pnlNorth.add(btnAddComment);
-		pnlSth.add(txtCh);
-		pnlSth.add(txtVNum);
+		pnlWst.add(btnAddComment);
+		pnlWst.add(txtCh);
+		pnlWst.add(txtVNum);
 		pnlSth.add(txtRefedVerse);
-		pnlSth.add(btnAddRef);
+		pnlWst.add(btnAddRef);
 		super.getContentPane().add(pnlNorth, BorderLayout.NORTH);
-		super.getContentPane().add(pnlSth, BorderLayout.SOUTH);
+		super.getContentPane().add(pnlSth, BorderLayout.EAST);
+		super.getContentPane().add(pnlWst, BorderLayout.SOUTH);
 
 		BOOK_VERSES.initVerses();
 		BOOK_COMMENTS.initComments();
@@ -141,8 +154,6 @@ public class Home extends JFrame implements Runnable {
 							Integer.parseInt(txtVNum.getText()),
 							txtActualVerse.getText()
 							);
-				//and update verse list
-				verseList.setModel();
 			}
 		});
 		btnAddComment.addActionListener(new ActionListener() {

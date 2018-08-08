@@ -12,7 +12,7 @@ import javax.swing.event.ListSelectionEvent;
 import javax.swing.event.ListSelectionListener;
 
 import Study.Bible;
-import UI.Operations.DisplayRef;
+import Study.Verse;
 import Utility.Log;
 
 public abstract class Props {
@@ -35,13 +35,13 @@ public abstract class Props {
 		
 	}
 	
-	abstract void setModel();
+	//abstract void setModel();
 	abstract JList<String> getListing();
 	abstract void run();
 	
 }
 
-class BookList extends Props implements ListSelectionListener, Runnable {
+class BookList extends Props implements ListSelectionListener {
 	private static final DefaultListModel<String> BOOK_MODEL = new DefaultListModel<String>();
 	private static final JList<String> BOOK_LIST = new JList<String>();
 	private static BookList instant = null;
@@ -68,11 +68,6 @@ class BookList extends Props implements ListSelectionListener, Runnable {
 		}
 		return null;
 	}
-	@Override
-	void setModel() {
-		p.p("updated bookList");
-		ops.setBookList();
-	}
 
 	@Override
 	public final JList<String> getListing() {
@@ -89,7 +84,7 @@ class BookList extends Props implements ListSelectionListener, Runnable {
 				ops.setVerseList(Home.selectedBook));
 	}
 	public void run() {
-		this.setModel();
+		ops.setBookList();
 		BOOK_LIST.addListSelectionListener(this);
 		BOOK_LIST.setSelectedIndex(0);
 	}
@@ -99,7 +94,7 @@ class BookList extends Props implements ListSelectionListener, Runnable {
 	
 }
 
-class VerseList extends Props implements ListSelectionListener, Runnable {
+class VerseList extends Props implements ListSelectionListener {
 	final String COMMENTARY = "enter your comments...";
 	final String ACTUAL_VERSE = "enter your comments...";
 	JTextArea txtActualVerse;
@@ -126,11 +121,6 @@ class VerseList extends Props implements ListSelectionListener, Runnable {
 			return instant;
 		}
 		return null;
-	}
-	
-	@Override
-	public void setModel() {
-		
 	}
 	
 	VerseData vd;
@@ -189,18 +179,19 @@ class VerseList extends Props implements ListSelectionListener, Runnable {
 	}
 }
 
-class RefedVerses extends Props implements Runnable, ListSelectionListener {
+class RefedVerses extends Props implements ListSelectionListener {
 	private static RefedVerses instant = null;
+	protected String verseBlock = "";
+	JTextArea txtRefedVerse;
 	Operations.DisplayRef displayRef;
-	public RefedVerses(JFrame frame, JList<String> list) {
+	
+	public RefedVerses(JFrame frame, JList<String> list, JTextArea txtRefedVerse) {
 		super(frame,list);
+		this.txtRefedVerse = txtRefedVerse;
 		instant = this;
 	}
-	private RefedVerses() {
-		
-	}
-	@Override
-	public void setModel() {
+	
+	protected RefedVerses() {
 		
 	}
 
@@ -215,20 +206,23 @@ class RefedVerses extends Props implements Runnable, ListSelectionListener {
 	public JList<String> getListing() {
 		return list;
 	}
-	
-	@Override
-	public void run() {
-		list.addListSelectionListener(this);
-	}
+
 	@Override
 	public void valueChanged(ListSelectionEvent arg0) {
 		if(list.getSelectedIndex() != -1) {
 			p.p("change in REF");
 			displayRef = new Operations.DisplayRef(list.getSelectedValue());
 			p.p("dispRef: "+displayRef.displayRefed());
+			txtRefedVerse.setText(displayRef.displayRefed());
 		}
 	}
+	@Override
+	public void run() {
+		list.addListSelectionListener(this);
+	}
 	
+
 }
+
 
 

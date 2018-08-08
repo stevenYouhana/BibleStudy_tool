@@ -56,7 +56,7 @@ public class Bible {
 		return 0;
 	}
 	public static class Book_Verses {
-		public final static Map<Integer,String> MAP = new HashMap<Integer,String>(66);
+		public final static Map<Integer,String> MAP = new HashMap<Integer,String>(NUM);
 		
 		public void initVerses() {
 			DB_Ops db = new DB_Ops();

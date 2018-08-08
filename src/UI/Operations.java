@@ -60,7 +60,26 @@ public class Operations {
 		int[] data = Bible.Book_Verses.getData(id);
 		return Bible.Book_Verses.MAP.get(data[0])+" "+data[1]+": "+data[2];
 	}
-	
+	public String displayRefed(String name, Matcher matcher, int[] vData ) {
+		p.p("for name: "+name);
+		if(name != null) {
+			Bible.Book_Verses.MAP.forEach( (bookNum, bookName) -> {
+				if(name.equals(bookName)) {
+					vData[0] = bookNum;
+				}
+			});
+			if(matcher.find()) {
+				vData[1] = Integer.parseInt(matcher.group(1));
+				vData[2] = Integer.parseInt(matcher.group(3));
+			}
+			p.p("vData: "+vData[0]);
+			for(Verse verse : Bible.mass_verses) {
+				if(Arrays.equals(verse.getVerseData(), vData))
+					return verse.toString();
+			}
+		}
+		return null;
+	}
 	static class DisplayRef {
 		Pattern pattern;
 		Matcher matcher;

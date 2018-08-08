@@ -43,9 +43,9 @@ public class AddRef {
 		public VerseRef() {
 			ar = new AddRef();
 			tempVerse = Home.generateVerseCode;
-			tempVerseLiteral = Arrays.copyOf(Home.generateVerseCode,Home.generateVerseCode.length);
+			tempVerseLiteral = Arrays.copyOf(
+					Home.generateVerseCode,Home.generateVerseCode.length);
 			ar.setToRefDATA(Home.generateVerseCode);
-			
 		}
 		@Override
 		public void run() {
@@ -71,6 +71,8 @@ public class AddRef {
 					ar.Go();
 					Bible.mass_verses.forEach( (verse) -> {
 						if(Arrays.equals(verse.getVerseData(),tempVerseLiteral)) {
+							if(!(verse.getReferences().contains(
+									Bible.Book_Verses.getID(Home.generateVerseCode))))
 							verse.addReferences(Bible.Book_Verses.getID(Home.generateVerseCode));
 						}
 					});

@@ -19,7 +19,7 @@ CREATE TABLE material.Verse(
 	booknum INT REFERENCES material.Book(booknum) NOT NULL,
 	verse VARCHAR NOT NULL,
 	comment VARCHAR NULL,
-	parent_verse INT
+	point_to INTEGER[]
 	);
 
 

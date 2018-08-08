@@ -35,7 +35,7 @@ public class Book {
 		this.verses = verses;
 	}
 	public void updateVerses(int book, int ch, int vnum, String actualVerse) {
-		int[] newVerse = new int[]{book,ch,vnum};
+		int[] newVerse = {book,ch,vnum};
 		for(Verse v : verses) {
 			if(Arrays.equals(newVerse, v.verseData)) {
 				//ERROR MESSAGE

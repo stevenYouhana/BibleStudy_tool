@@ -1,18 +1,12 @@
 package Aquire;
-import java.util.List;
-import java.sql.Array;
 import java.sql.Connection;
 import java.sql.PreparedStatement;
 import java.sql.SQLException;
 import java.sql.Statement;
 import java.sql.ResultSet;
 import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.Collection;
 import java.util.HashMap;
-import java.util.LinkedList;
 import java.util.Map;
-
 import javax.swing.DefaultListModel;
 
 import Study.Bible;
@@ -189,32 +183,33 @@ public class DB_Ops {
 	
 	// USED IN Bible.Referencing
 	public void addParrentVerse(int actual, int pointer) {
-		p.p("DB_OPs >> adding :"+actual+" to "+pointer);
-		String sql = "UPDATE material.verse SET point_to = array_append(point_to, ";
-				sql += pointer;
-				sql += ") WHERE verse_id = ";
-				sql += actual + ";";
+		if(actual != pointer) {
+			p.p("DB_OPs >> adding :"+actual+" to "+pointer);
+			String sql = "UPDATE material.verse SET point_to = array_append(point_to, ";
+					sql += pointer;
+					sql += ") WHERE verse_id = ";
+					sql += actual + ";";
+					
+			try(Connection con = DB_Connector.connect()){
+				Statement stmnt = con.createStatement(ResultSet.
+	                    TYPE_SCROLL_INSENSITIVE, ResultSet.CONCUR_UPDATABLE);
 				
-		try(Connection con = DB_Connector.connect()){
-			Statement stmnt = con.createStatement(ResultSet.
-                    TYPE_SCROLL_INSENSITIVE, ResultSet.CONCUR_UPDATABLE);
-			
-			stmnt.executeUpdate(sql);
-			p.p("executing aaddPar for child: "+actual+ " parID: "+pointer);
+				stmnt.executeUpdate(sql);
+				p.p("executing aaddPar for child: "+actual+ " parID: "+pointer);
+			}
+			catch(SQLException sqle) {
+				System.out.println("addParent: sqle----"+sqle);
+			}
+			catch(Exception e) {
+				System.out.println("addParent e: "+e);
+			}
 		}
-		catch(SQLException sqle) {
-			System.out.println("addParent: sqle----"+sqle);
-		}
-		catch(Exception e) {
-			System.out.println("addParent e: "+e);
+		else {
+			p.p("Verse cannot reference iteslf!");
 		}
 	}
 	
 	public final void INIT_REF_LIST() {
-		/* 
-		 * select all from table that contain parent verse
-		 * add data to map (for each verse_id, add all verses pointing_to
-		 */
 		class All_Records {
 
 			String sql = null;
