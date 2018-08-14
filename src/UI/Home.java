@@ -9,10 +9,12 @@ import java.awt.Component;
 import java.awt.Container;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
+import java.util.Arrays;
 
 import Aquire.DB_Ops;
 import Study.Bible;
 import Study.Book;
+import Study.Search;
 import Utility.Log;
 
 public class Home extends JFrame implements Runnable {
@@ -24,6 +26,7 @@ public class Home extends JFrame implements Runnable {
 	final String COMMENTARY = "enter your comments...";
 	final String VERSE = "Write the actual verse...";
 	final String REFED_VERSE = "referenced verse";
+	static String mainLabelText = "Bible study time";
 	
 	protected static int[] generateVerseCode;
 	final Bible.Book_Verses BOOK_VERSES = new Bible.Book_Verses();
@@ -36,6 +39,8 @@ public class Home extends JFrame implements Runnable {
 	private Props verseList;
 	private Props refedVerses;
 	
+	private JButton[] buttons;
+	private JLabel lblSelectRef = new JLabel(mainLabelText);
 	//Utilities
 	Log p = new Log();
 	Utilities utilities = new Utilities();
@@ -47,9 +52,12 @@ public class Home extends JFrame implements Runnable {
 	JButton btnAddVerse = new JButton("add verse");
 	JButton btnAddComment = new JButton("add comment");
 	JButton btnAddRef = new JButton("add reference");
+	JButton btnVersion = new JButton("add version");
 	JTextField txtCh = new JTextField("Ch");
 	JTextField txtVNum = new JTextField("Verse Number");
+	JTextField txtVersion = new JTextField("Version");
 	JTextArea txtCommentary = new JTextArea(COMMENTARY);
+	JTextField txtSearch = new JTextField("Search");
 	
 	JTextArea txtActualVerse = new JTextArea(VERSE);
 	JTextArea txtRefedVerse = new JTextArea(REFED_VERSE);
@@ -75,10 +83,76 @@ public class Home extends JFrame implements Runnable {
 		return BOOK_COMMENTS;
 	}
 	
+	public void buttonAction() {
+		buttons = new JButton[] {btnAddVerse, btnAddComment, btnAddRef, btnVersion};
+		btnAddVerse.addActionListener(new ActionListener() {
+			@Override
+			public void actionPerformed(ActionEvent e) {
+				//**********Check for existing************
+				Bible.mass_verses.forEach( verse -> {
+					if(Arrays.equals(verse.getVerseData(), new int[] {
+							selectedBook.getBooknum(),Integer.parseInt(txtCh.getText()),
+							Integer.parseInt(txtVNum.getText()),
+							})) return; });
+				db.addVerse(
+						selectedBook.getTitle(),
+						Integer.parseInt(txtCh.getText()),
+						Integer.parseInt(txtVNum.getText()),
+						txtActualVerse.getText().concat("\r\n").
+						concat(txtVersion.getText())
+						);
+				//now update the java array
+				BIBLE.selectBook(selectedBook.getTitle()).
+					updateVerses(selectedBook.getBooknum(),
+							Integer.parseInt(txtCh.getText()),
+							Integer.parseInt(txtVNum.getText()),
+							txtActualVerse.getText()
+							);
+			}
+		});
+		
+		btnAddComment.addActionListener(new ActionListener() {
+			@Override
+			public void actionPerformed(ActionEvent e) {
+				if(BOOK_COMMENTS.exists(generateVerseCode, txtCommentary.getText())) {
+					System.out.println("comment for that verse exists");
+					if(msgbox.existingComment() == 1) {
+						System.out.println("confirm: "+1);
+						return;
+					}
+				}
+				System.out.println("not returned!");
+				try {
+					if(!(txtCommentary.getText().equals(COMMENTARY)) || (!(txtCommentary.getText().equals("")))
+							&& generateVerseCode != null) {
+						db.addComment(txtCommentary.getText(), selectedBook.findVerse(generateVerseCode));
+						BOOK_COMMENTS.addComment(generateVerseCode,txtCommentary.getText());
+					}
+					else {
+						System.out.println("Please select a verse to comment on.");
+					}
+				}
+				catch(NullPointerException npe) {
+					System.out.println("Please select a verse to comment on.");
+				}
+				catch(Exception ex) {
+					System.out.println("ex addCommentBTN: "+ex);
+				}
+			}
+		});
+		btnAddRef.addActionListener(new ActionListener() {
+			 
+			@Override
+				public void actionPerformed(ActionEvent arg0) {
+					AddRef.VerseRef vr = new AddRef.VerseRef(buttons, lblSelectRef);
+					vr.run();
+				}
+		});
+	}
 	@Override
 	public void run() {
 		pnlSth.setPreferredSize(new Dimension(180,180));
-		pnlWst.setPreferredSize(new Dimension(140,140));
+		pnlWst.setPreferredSize(new Dimension(140,60));
 		// ***********         PROPS         *************
 		{
 		
@@ -97,9 +171,13 @@ public class Home extends JFrame implements Runnable {
 		super.setPreferredSize(new Dimension(10000,900));
 		txtCh.setPreferredSize(new Dimension(100,30));
 		txtVNum.setPreferredSize(new Dimension(100,30));
+		txtVersion.setPreferredSize(new Dimension(100,30));
+		txtSearch.setPreferredSize(new Dimension(100,30));
+		
 		txtActualVerse.setPreferredSize(new Dimension(250,300));
-		txtRefedVerse.setPreferredSize(new Dimension(200,200));
+		txtRefedVerse.setPreferredSize(new Dimension(300,200));
 		txtCommentary.setPreferredSize(new Dimension(250,300));
+		
 		//		******LISTS******
 		lstBooks.setPreferredSize(new Dimension(150,400));
 		lstVerses.setPreferredSize(new Dimension(250,300));
@@ -110,6 +188,7 @@ public class Home extends JFrame implements Runnable {
 		
 		//		*******SET******** 
 		txtActualVerse.setLineWrap(true);
+		txtActualVerse.setEditable(true);
 		txtCommentary.setLineWrap(true);
 		txtRefedVerse.setLineWrap(true);
 		txtRefedVerse.setEditable(false);
@@ -118,11 +197,15 @@ public class Home extends JFrame implements Runnable {
 		pnlNorth.add(scrBooks);
 		pnlNorth.add(scrVerses);
 		pnlNorth.add(txtActualVerse);
-		pnlWst.add(btnAddVerse);
 		pnlNorth.add(scrCommentary);
+		pnlNorth.add(lblSelectRef);
 		pnlWst.add(btnAddComment);
+		pnlWst.add(btnAddVerse);
+		pnlWst.add(btnVersion);
 		pnlWst.add(txtCh);
+		pnlWst.add(txtSearch);
 		pnlWst.add(txtVNum);
+		pnlWst.add(txtVersion);
 		pnlSth.add(txtRefedVerse);
 		pnlWst.add(btnAddRef);
 		super.getContentPane().add(pnlNorth, BorderLayout.NORTH);
@@ -135,67 +218,8 @@ public class Home extends JFrame implements Runnable {
 		BOOK_LIST.run();
 		verseList.run();
 		refedVerses.run();
-		
-		//***************BUTTONS ACTION******************
-		
-		btnAddVerse.addActionListener(new ActionListener() {
-			@Override
-			public void actionPerformed(ActionEvent e) {
-				db.addVerse(
-						selectedBook.getTitle(),
-						Integer.parseInt(txtCh.getText()),
-						Integer.parseInt(txtVNum.getText()),
-						txtActualVerse.getText()
-						);
-				//now update the java array
-				BIBLE.selectBook(selectedBook.getTitle()).
-					updateVerses(selectedBook.getBooknum(),
-							Integer.parseInt(txtCh.getText()),
-							Integer.parseInt(txtVNum.getText()),
-							txtActualVerse.getText()
-							);
-			}
-		});
-		btnAddComment.addActionListener(new ActionListener() {
-			@Override
-			public void actionPerformed(ActionEvent e) {
-				if(BOOK_COMMENTS.exists(generateVerseCode, txtCommentary.getText())) {
-					System.out.println("comment for that verse exists");
-					if(msgbox.existingComment() == 1) {
-						System.out.println("confirm: "+1);
-						return;
-					}
-				}
-				System.out.println("not returned!");
-				try {
-					if(!(txtCommentary.equals(COMMENTARY)) || (!(txtCommentary.getText().equals("")))
-							&& generateVerseCode != null) {
-						db.addComment(txtCommentary.getText(), selectedBook.findVerse(generateVerseCode));
-						BOOK_COMMENTS.addComment(generateVerseCode,txtCommentary.getText());
-					}
-					else {
-						System.out.println("Please select a verse to comment on.");
-					}
-				}
-				catch(NullPointerException npe) {
-					System.out.println("Please select a verse to comment on.");
-				}
-				catch(Exception ex) {
-					System.out.println("ex addCommentBTN: "+ex);
-				}
-			}
-		});
-		btnAddRef.addActionListener(new ActionListener() {
-			JButton[] buttons = {btnAddVerse, btnAddComment, btnAddRef};
-			@Override
-				public void actionPerformed(ActionEvent arg0) {
-					utilities.disable_buttons(buttons);
-					AddRef.VerseRef vr = new AddRef.VerseRef();
-					utilities.disable_buttons(buttons);
-					vr.run();
-					utilities.enable_buttons(buttons);
-				}
-		});
+		buttonAction();
+		Search search = new Search(txtSearch);
 		super.pack();
 		super.setVisible(true);
 		super.setResizable(false);

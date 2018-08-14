@@ -156,7 +156,8 @@ public class Bible {
 				}
 				if(pointer != -1 && actual != -1) return;
 			});
-			db.addParrentVerse(actual, pointer);
+			if(pointer != -1 && actual != -1)
+				db.Pointer(actual, pointer);
 		}
 		
 		public void addVerse(int[] newVerse) {

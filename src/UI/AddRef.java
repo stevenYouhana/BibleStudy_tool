@@ -2,6 +2,8 @@ package UI;
 
 
 import java.util.Arrays;
+import javax.swing.JButton;
+import javax.swing.JLabel;
 
 import Study.Bible;
 
@@ -38,10 +40,14 @@ public class AddRef {
 	
 	static class VerseRef implements Runnable {
 		AddRef ar;
+		private JButton[] buttons = null;
+		private JLabel mainLabel;
 		Object tempVerse = null;
 		int[] tempVerseLiteral = null;
-		public VerseRef() {
+		public VerseRef(JButton[] buttons, JLabel mainLabel) {
 			ar = new AddRef();
+			this.buttons = buttons;
+			this.mainLabel = mainLabel;
 			tempVerse = Home.generateVerseCode;
 			tempVerseLiteral = Arrays.copyOf(
 					Home.generateVerseCode,Home.generateVerseCode.length);
@@ -49,12 +55,20 @@ public class AddRef {
 		}
 		@Override
 		public void run() {
-			VerseSelect vSelect = new VerseSelect();
+			Utilities.disable_buttons(buttons);
+			//<font size="3" color="red">This is some text!</font>
+			mainLabel.setText("Select Verse");
+			VerseSelect vSelect = new VerseSelect(buttons, mainLabel);
 			vSelect.start();
 		}
 		
 		private class VerseSelect extends Thread {
-			@Override
+			private JButton[] buttons;
+			private JLabel mainLabel;
+			public VerseSelect(JButton[] buttons, JLabel mainLabel) {
+				this.buttons = buttons;
+				this.mainLabel = mainLabel;
+			}
 			public void run() {
 				BeingRefed beingRefed = new BeingRefed();
 				beingRefed.start();
@@ -74,6 +88,8 @@ public class AddRef {
 							if(!(verse.getReferences().contains(
 									Bible.Book_Verses.getID(Home.generateVerseCode))))
 							verse.addReferences(Bible.Book_Verses.getID(Home.generateVerseCode));
+							Utilities.enable_buttons(buttons);
+							mainLabel.setText(Home.mainLabelText);
 						}
 					});
 					Home.generateVerseCode = null;	//resetting verse code

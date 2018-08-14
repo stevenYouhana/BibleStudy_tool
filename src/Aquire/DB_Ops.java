@@ -1,4 +1,5 @@
 package Aquire;
+
 import java.sql.Connection;
 import java.sql.PreparedStatement;
 import java.sql.SQLException;
@@ -50,7 +51,6 @@ public class DB_Ops {
 		return books;
 	}
 	public static final void SET_BOOKS_MODEL(DefaultListModel<String> model) {
-		Utility.Log p = new Utility.Log();
 
 		try(Connection con = DB_Connector.connect()){
 			Statement stmt = con.createStatement();
@@ -182,7 +182,7 @@ public class DB_Ops {
 	}
 	
 	// USED IN Bible.Referencing
-	public void addParrentVerse(int actual, int pointer) {
+	public void Pointer(int actual, int pointer) {
 		if(actual != pointer) {
 			p.p("DB_OPs >> adding :"+actual+" to "+pointer);
 			String sql = "UPDATE material.verse SET point_to = array_append(point_to, ";
