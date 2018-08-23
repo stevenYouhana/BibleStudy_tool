@@ -4,8 +4,9 @@ designing of a desktop app (or prototype) for the main purpose of studying the S
 Technology being uses:
   - Java Swing (migrating to JavaFX)
   - Postgresql database
-  - looking to ustilise an online API for retrieving content (verses and versions)
+  - looking to use an online API for retrieving content (verses and versions)
   - Possibility of later development for Android
+  
   
 Key objectives are:
   - referencing of verses to other verses (each verse can be referenced to 0 or multiple available verses)
