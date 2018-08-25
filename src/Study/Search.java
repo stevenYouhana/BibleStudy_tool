@@ -20,26 +20,21 @@ public class Search {
 		this.txtSearch = txtSearch;
 		
 		txtSearch.addKeyListener(new KeyListener() {
-			
+			Search_String searchString = null;
 				@Override
 				public void keyPressed(KeyEvent arg0) {
-					// TODO Auto-generated method stub
 					p.p("key pressesd: ");
-					Search_String searchString = new Search_String();
+					searchString = new Search_String();
 					searchString.start();
 				}
 
 				@Override
 				public void keyReleased(KeyEvent arg0) {
 					
-					// TODO Auto-generated method stub
-					//p.p("Ket RELEASED"+ txtSearch.getText());
-					//generateVerses(txtSearch.getText());
 				}
 
 				@Override
 				public void keyTyped(KeyEvent arg0) {
-					// TODO Auto-generated method stub
 					
 				}
 		});

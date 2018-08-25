@@ -1,0 +1,21 @@
+
+.root {
+    -fx-background-color: linear-gradient(to right,#d81200, #3a0404);
+}
+
+#main-border {
+	-fx-background-color: linear-gradient(to right,#d81200, #3a0404);
+}
+
+.button {
+	-fx-background-color: #d8d197;
+	-fx-font-color: #3a0404;
+	-fx-font-size: 16px;
+}
+.button:hover {
+	-fx-background-color: #ede4ce;
+	-fx-font-color: #424035;
+}
+.button:pressed {
+	-fx-background-color: #fcfaf4;
+}
