@@ -9,6 +9,7 @@ import java.util.regex.Pattern;
 import javafx.scene.control.TextArea;
 
 import Study.Bible;
+import Study.Book;
 import Study.Verse;
 import Utility.Log;
 
@@ -16,39 +17,39 @@ import Utility.Log;
 // *********JAVAFX***********
 import javafx.beans.value.ChangeListener;
 import javafx.beans.value.ObservableValue;
+import javafx.collections.ObservableList;
+import javafx.scene.control.Label;
 import javafx.scene.control.ListView;
-
+import Study.Bible;
 
 public abstract class ListProps {
 
-	protected ListView<String> list = new ListView<>();
-	//Operations ops = new Operations();
-	
+	protected ListView<String> list;
+	Operations ops = new Operations();
+	int[] generateVerseCode = new int[3];
+	protected final Bible.Book_Comments BOOK_COMMENTS = new Bible.Book_Comments(); 
 	public Log p = new Log();
 	
 	ListProps(ListView<String> list) {
 		this.list = list;
-
 	}
 	
 	ListProps(){
 		
 	}
 	
-	//abstract void setModel();
 	abstract ListView<String> getListing();
 	abstract void run();
 	
 }
 
 class BookList extends ListProps {
-	private static final ListView<String> BOOK_LIST = new ListView<>();
+	private static ListView<String> BOOK_LIST;
 	private static BookList instant = null;
-	
-	
-	
+	protected static Book selectedBook = null;
+
 	private BookList() {
-		
+
 	}
 
 	public static BookList getInstant() {
@@ -64,19 +65,21 @@ class BookList extends ListProps {
 		return BOOK_LIST;
 	}
 	
+	public Book getSelectedBook() {
+		return selectedBook;
+	}
 
 	public void run() {
-		//ops.setBookList();
+		BOOK_LIST = new ListView<>(ops.setBookList());
 		BOOK_LIST.getSelectionModel().selectedItemProperty().addListener(new ChangeListener<String>() {
 			@Override
 			public void changed(ObservableValue<? extends String> arg0, String arg1, String arg2) {
-				// TODO Auto-generated method stub
 				p.p("book change");
-//				Home.selectedBook = ops.getSelectedBook(BOOK_LIST.getSelectedValue());
-//				p.p("sel book: "+Home.selectedBook);
-//				ops.setVerseList(Home.selectedBook);
-//				VerseList.getInstant().getListing().setModel(
-//						ops.setVerseList(Home.selectedBook));				
+				selectedBook = ops.getSelectedBook(BOOK_LIST.getSelectionModel().getSelectedItem());
+				
+				VerseList.getInstant().getListing().setItems(ops.setVerseList(selectedBook));
+			
+				//VerseList.getInstant().txtComment.setText("TEST COMMENT: "+selectedBook);
 			}
 			
 		});
@@ -87,10 +90,9 @@ class BookList extends ListProps {
 }
 
 class VerseList extends ListProps {
-	final String COMMENTARY = "enter your comments...";
-	final String ACTUAL_VERSE = "enter your comments...";
 	TextArea txtActualVerse;
-	TextArea txtComment = new TextArea(COMMENTARY);
+	TextArea txtComment;
+	Log p = new Log();
 	
 	private static VerseList instant = null;
 	
@@ -99,54 +101,52 @@ class VerseList extends ListProps {
 		instant = this;
 		
 	}
+	
 	public VerseList(ListView<String> list,TextArea txtActualVerse, TextArea txtComment) {
 		this(list);
 		this.txtActualVerse = txtActualVerse;
 		this.txtComment = txtComment;
+		list.setPlaceholder(new Label("No verses added"));
+		instant = this;
 	}
-	private VerseList() {
-		
-	}
+
 
 	public static VerseList getInstant() {
 		if(instant != null) {
 			return instant;
 		}
+		
 		return null;
 	}
 	
 	@Override
 	public ListView<String> getListing(){
-		return list; 
+		return super.list; 
 	}
+	
 	
 	@Override
 	public void run() {
 		p.p("running verse list..");
-		VerseData vd;
-
+		
 		list.getSelectionModel().selectedItemProperty().addListener(new ChangeListener<String>() {
-
+			VerseData vd;
 			@Override
 			public void changed(ObservableValue<? extends String> arg0, String arg1, String arg2) {
-				// TODO Auto-generated method stub
 				p.p("verse changed");
 				if(list.getSelectionModel().getSelectedIndex() != -1) {
-//					vd = new VerseData(list.getSelectedValue());
-//					vd.setData();
-//					//**********SET COMMENT***********
-//					txtComment.setText(Home.BOOK_COMMENTS.getVerse(Home.generateVerseCode));
-//					RefedVerses.getInstant().getListing().setModel(
-//							ops.setRefList(Home.generateVerseCode));
-//					//**********SET VERSE TEXT***********
-//					Bible.mass_verses.forEach( (verse) -> {
-//						if(Arrays.equals(verse.getVerseData(),Home.generateVerseCode))
-//							txtActualVerse.setText(verse.toString());
-//					});
+					vd = new VerseData(list.getSelectionModel().getSelectedItem());
+					vd.setData();
+					//**********SET COMMENT***********
+					txtComment.setText(BOOK_COMMENTS.getVerse(generateVerseCode));
+					RefedVerses.getInstant().getListing().setItems(
+							ops.setRefList(generateVerseCode));
+					//**********SET VERSE TEXT***********
+					Bible.mass_verses.forEach( (verse) -> {
+						if(Arrays.equals(verse.getVerseData(), generateVerseCode))
+							txtActualVerse.setText(verse.toString());
+					});
 				}
-				else {
-					txtComment.setText(COMMENTARY);
-				}				
 			}
 			
 		});
@@ -163,15 +163,16 @@ class VerseList extends ListProps {
 			this.verse = verse;
 			if(verse != null) {
 				matcher = pattern.matcher(verse);
+				
 			}
 		}
 		public void setData() { 
 			if(matcher.find()) {
-//				Home.generateVerseCode = new int[3];
-//				Home.generateVerseCode[0] = Home.selectedBook.getBooknum();
-//				Home.generateVerseCode[1] = Integer.parseInt(matcher.group(1));
-//				Home.generateVerseCode[2] = Integer.parseInt(matcher.group(3).toString().substring(0,
-//                        matcher.group(3).toString().length()-1));
+				generateVerseCode = new int[3];
+				generateVerseCode[0] = BookList.selectedBook.getBooknum();
+				generateVerseCode[1] = Integer.parseInt(matcher.group(1));
+				generateVerseCode[2] = Integer.parseInt(matcher.group(3).toString().substring(0,
+                        matcher.group(3).toString().length()-1));
 			}
 		}
 	}

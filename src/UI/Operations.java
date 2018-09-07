@@ -18,13 +18,14 @@ public class Operations {
 	private final DefaultListModel<String> refModel = new DefaultListModel<String>();
 	
 	
-	public void setBookList() {
-		for(Book book : Bible.books) {
-			BookList.getInstant().getModel().addElement(book.toString());
-		}
-		BookList.getInstant().getListing().setModel(
-				BookList.getInstant().getModel());
-	}
+//	public void setBookList() {
+//		for(Book book : Bible.books) {
+//			
+//			BookList.getInstant().getModel().addElement(book.toString());
+//		}
+//		BookList.getInstant().getListing().setModel(
+//				BookList.getInstant().getModel());
+//	}
 	
 	//used in value change (BookList)
 	public Book getSelectedBook(String bookName) {

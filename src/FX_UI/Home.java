@@ -5,17 +5,11 @@ package FX_UI;
 
 import javax.swing.JTextField;
 
+
 import javafx.application.Application;
-import javafx.beans.property.SimpleStringProperty;
-import javafx.beans.property.StringProperty;
-import javafx.beans.value.ChangeListener;
-import javafx.beans.value.ObservableValue;
-import javafx.collections.FXCollections;
-import javafx.collections.ObservableList;
 import javafx.geometry.Insets;
 import javafx.scene.Group;
 import javafx.scene.Scene;
-import javafx.scene.control.Label;
 import javafx.scene.control.ListView;
 import javafx.scene.control.TextArea;
 import javafx.scene.control.TextField;
@@ -28,7 +22,7 @@ import javafx.stage.Stage;
 import javafx.geometry.Rectangle2D;
 import javafx.stage.Screen;
 
-public class Home extends Application {
+public class Home extends Application implements Runnable {
 	Utility.Log p = new Utility.Log(); 
 	
 	final static String ch_PHOLDER = "ch";
@@ -36,12 +30,16 @@ public class Home extends Application {
 	final static String version_PHOLDER = "version";
 	final static String actV_PHOLDER = "verse";
 	final static String coment_PHOLDER = "notes";
-	final static String search_PHOLDER = "Search";
-	final static String ref_PHOLDER = "References";
+	final static String search_PHOLDER = "search";
+	final static String ref_PHOLDER = "references";
 	static TextInputControl[] txtProps;
-  public static void main(String[] args) {
-    Application.launch(args);
-  }
+	
+	//*********Operations***********
+	
+	@Override
+	public void run() {
+		Application.launch();
+	}
 
   @Override
   public void start(Stage primaryStage) {
@@ -54,8 +52,11 @@ public class Home extends Application {
     //primaryStage.setWidth(200);
     Group root = new Group();
     
+    //TEST placeholders
+
     
-    Scene scene = new Scene(root, screenBounds.getWidth(), screenBounds.getHeight());
+    
+    Scene scene = new Scene(root, screenBounds.getWidth(), screenBounds.getHeight()-100);
     // create a grid pane
     BorderPane border = new BorderPane();
     border.setId("main-border");
@@ -65,20 +66,18 @@ public class Home extends Application {
     VBox hboxCrud = new VBox();
     VBox hboxTxtFlds = new VBox();
     
-    vboxLists.setPrefSize(450, 700);
-    hboxTexts.setPrefSize(450, 700);
+    vboxLists.setPrefSize(300, 700);
+    hboxTexts.setPrefSize(600, 700);
     vboxButtons.setPrefSize(170,170);
     hboxTxtFlds.setPrefSize(170,170);
-    border.setPrefSize(screenBounds.getWidth(), screenBounds.getHeight());
+    border.setPrefSize(screenBounds.getWidth(), screenBounds.getHeight()-100);
     
-    ObservableList<String> names = FXCollections.observableArrayList("steve","marv","issa","hayk");
-    ListView<String> lst = new ListView<>(names);
     
     //*********Text Field************
-	TextField txtCh = new TextField(ch_PHOLDER);
-	TextField txtVNum = new TextField(vnum_PHOLDER);
-	TextField txtVersion = new TextField(version_PHOLDER);
-	TextField txtSearch = new TextField(search_PHOLDER+"...");
+	TextField txtCh = new TextField();
+	TextField txtVNum = new TextField();
+	TextField txtVersion = new TextField();
+	TextField txtSearch = new TextField();
     txtCh.setPrefSize(50, 40);
     txtVNum.setPrefSize(100, 40);
     txtVersion.setPrefSize(100, 40);
@@ -89,13 +88,14 @@ public class Home extends Application {
     txtVersion.setId(version_PHOLDER);
     txtSearch.setId(search_PHOLDER);
     
+    
     //*********Text Area*************
-    TextArea txtActualVerse = new TextArea(actV_PHOLDER+"...");
-    TextArea txtCommentary = new TextArea(coment_PHOLDER+"...");
-    TextArea txtRefedVerse = new TextArea(ref_PHOLDER+"...");
-    txtActualVerse.setPrefSize(300, 170);
-    txtCommentary.setPrefSize(300, 170);
-    txtRefedVerse.setPrefSize(300, 170);
+    TextArea txtActualVerse = new TextArea();
+    TextArea txtCommentary = new TextArea();
+    TextArea txtRefedVerse = new TextArea();
+    txtActualVerse.setPrefSize(260, 170);
+    txtCommentary.setPrefSize(260, 170);
+    txtRefedVerse.setPrefSize(260, 170);
     
     txtActualVerse.setId(actV_PHOLDER);
     txtCommentary.setId(coment_PHOLDER);
@@ -103,12 +103,11 @@ public class Home extends Application {
     
     //*********Manage all input(/output) fields
     	txtProps = new TextInputControl[] {
-    		txtCh, txtVNum,txtVersion,txtSearch, txtActualVerse,
+    		txtCh, txtVNum,txtVersion, txtSearch, txtActualVerse,
     		txtCommentary,txtRefedVerse
     		};
     for(TextInputControl input : txtProps) {
     	TextProp textProp = new TextProp(input);
-    		p.p("Home: "+input.getId());
         textProp.run();
     }
     
@@ -116,15 +115,15 @@ public class Home extends Application {
     ListView<String> lstBooks = new ListView<>();
     ListView<String> lstVerses = new ListView<>();
     ListView<String> lstRef = new ListView<>();
-    lstBooks.setPrefSize(150, 400);
+    lstBooks.setPrefSize(100, 400);
     lstVerses.setPrefSize(150, 400);
     lstRef.setPrefSize(150, 400);
     
     //********Buttons*********
 
-	Button btnAddVerse = new Button("add verse");
-	Button btnAddComment = new Button("add comment");
-	Button btnAddRef = new Button("add reference");
+	Button btnAddVerse = new Button("Add verse");
+	Button btnAddComment = new Button("Add noted");
+	Button btnAddRef = new Button("Add reference");
 	
 	
     btnAddVerse.setPrefSize(170, 50);
@@ -134,28 +133,21 @@ public class Home extends Application {
     final ListProps BOOK_LIST = BookList.getInstant();
     ListProps verseList = new VerseList(lstVerses,txtActualVerse, txtCommentary);
     ListProps refedVerses = new RefedVerses(lstRef, txtRefedVerse);
+    
+    
+    
     BOOK_LIST.run();
     verseList.run();
     refedVerses.run();
     
-    lst.setPrefWidth(150);
-    lst.setPrefHeight(150);
-    
-    
-    lst.getSelectionModel().selectedItemProperty().addListener(new ChangeListener<String>() {
-
-		@Override
-		public void changed(ObservableValue<? extends String> arg0, String arg1, String arg2) {
-			// TODO Auto-generated method stub
-			System.out.println("selection changed "+arg1+" "+arg2);
-		}
-    });
-    
+    lstBooks = BOOK_LIST.getListing();
+    lstVerses = verseList.getListing();
+        
 
     //**********Landscaping************
     hboxTexts.getChildren().addAll(lstBooks,lstVerses,lstRef);
     vboxLists.getChildren().addAll(txtActualVerse,txtCommentary,txtRefedVerse);
-    vboxButtons.getChildren().addAll(btnAddVerse,btnAddComment,btnAddRef,txtSearch);
+    vboxButtons.getChildren().addAll(btnAddVerse,btnAddComment,btnAddRef);
     hboxTxtFlds.getChildren().addAll(txtCh, txtVNum, txtVersion);
     hboxCrud.getChildren().addAll(hboxTxtFlds);
     hboxCrud.getChildren().addAll(vboxButtons);
@@ -168,6 +160,7 @@ public class Home extends Application {
     border.setLeft(hboxTexts);
     border.setCenter(vboxLists);
     border.setRight(hboxCrud);
+    border.setBottom(txtSearch);
     root.getChildren().add(border);
     
     primaryStage.sizeToScene();
@@ -175,6 +168,8 @@ public class Home extends Application {
     scene.getStylesheets().add("FX_UI/MainStyles.css");
     primaryStage.setResizable(false);
     primaryStage.show();
+    
+
   }
 
 }

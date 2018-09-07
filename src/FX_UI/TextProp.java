@@ -12,74 +12,67 @@ public class TextProp implements Runnable {
 	TextArea txtArea;
 	
 	String id = null;
-	private static LinkedList<TextProp> list = new LinkedList<>();
+	private static LinkedList<TextProp> props = new LinkedList<>();
 
 	public TextProp(TextInputControl input) {
 		if(input instanceof TextField) {
 			this.txtField = new TextField();
 			this.txtField = (TextField) input;
 			id = txtField.getId();
-			list.add(this);
+			props.add(this);
 		}
 		else if(input instanceof TextArea) {
 			this.txtArea = new TextArea();
 			this.txtArea = (TextArea) input;
 			id = txtArea.getId();
-			list.add(this);
+			props.add(this);
 		}
 		else return;
 	}
 	private void managePlaceHolders() {
-		list.forEach(obj -> {
+		props.forEach(obj -> {
 			switch(obj.id) {
-			case "verse": obj.setFocusProperty(Home.actV_PHOLDER); p.p(Home.actV_PHOLDER); 
+			case "verse": obj.setPlaceHolder(Home.actV_PHOLDER);
 			break;
 			
-			case "notes": obj.setFocusProperty(Home.coment_PHOLDER); p.p(Home.coment_PHOLDER);
+			case "notes": obj.setPlaceHolder(Home.coment_PHOLDER);
 			break;
 			
-			case "References": obj.setFocusProperty(Home.ref_PHOLDER); p.p(Home.ref_PHOLDER);
+			case "references": obj.setPlaceHolder(Home.ref_PHOLDER);
 			break;
 			
-			case "ch": obj.setFocusProperty(Home.ch_PHOLDER); p.p("CH");
+			case "ch": obj.setPlaceHolder(Home.ch_PHOLDER);
 			break;
 			
-			case "verse number": obj.setFocusProperty(Home.vnum_PHOLDER);
+			case "verse number": obj.setPlaceHolder(Home.vnum_PHOLDER);
 			break;
 			
-			case "version": obj.setFocusProperty(Home.version_PHOLDER);
+			case "version": obj.setPlaceHolder(Home.version_PHOLDER);
 			break;
 			//	txtSearch
-			default: obj.setFocusProperty(Home.search_PHOLDER);
+			default: obj.setPlaceHolder(Home.search_PHOLDER);
 			break;
 			}
 		});
-		
 	}
-	public void setFocusProperty(String def) {
-		if(txtField != null) {
-			txtField.focusedProperty().addListener( (obj, of, on) -> {
-				if(!on && txtField.getText().isEmpty()) txtField.setText(def);
-	    			else if(on && txtField.getText().equals(def)) txtField.setText("");
-			});	
+	private void setPlaceHolder(String def) {
+		try {
+			if(txtField != null) {
+				txtField.setPromptText(def);
+			}
+			else if(txtArea != null) {
+				txtArea.setPromptText(def);
+			}
 		}
-		else if(txtArea != null) {
-			txtArea.focusedProperty().addListener( (obj, of, on) -> {
-				if(!on && txtArea.getText().isEmpty()) txtArea.setText(def);
-	    			else if(on && txtArea.getText().equals(def)) txtArea.setText("");
-			});	
+		catch(NullPointerException npe) {
+			p.p("ERR setPlaceHolder(str): "+npe);
 		}
 
 	}
 	@Override
 	public void run() {
-		if(list.size() == Home.txtProps.length) {
-			p.p("running TextProps: length of array: "+Home.txtProps.length);
-			list.forEach(e -> {
-				p.p(e.id);
-			});
+		if(props.size() == Home.txtProps.length) {
 			managePlaceHolders();
-		
 		}
 	}
 }

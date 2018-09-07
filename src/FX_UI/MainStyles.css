@@ -19,3 +19,12 @@
 .button:pressed {
 	-fx-background-color: #fcfaf4;
 }
+#Search {
+	font-size: 15px;
+}
+.list-view .scroll-bar:horizontal .increment-arrow,
+.list-view .scroll-bar:horizontal .decrement-arrow,
+.list-view .scroll-bar:horizontal .increment-button,
+.list-view .scroll-bar:horizontal .decrement-button {
+    -fx-padding:0;
+}

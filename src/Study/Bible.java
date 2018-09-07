@@ -16,7 +16,7 @@ public class Bible {
 		
 	}
 //load all books
-	{
+	public static void INIT_BOOKS() {
 		books = DB_Ops.GET_BOOKS();
 	}
 	
