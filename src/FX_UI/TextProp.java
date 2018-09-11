@@ -2,17 +2,17 @@ package FX_UI;
 import javafx.scene.control.TextField;
 import javafx.scene.control.TextInputControl;
 
-import java.util.LinkedList;
+import java.util.HashSet;
 
 import javafx.scene.control.TextArea;
 
 public class TextProp implements Runnable {
 	Utility.Log p = new Utility.Log(); 
-	TextField txtField;
-	TextArea txtArea;
+	TextField txtField = null;
+	TextArea txtArea = null;
 	
 	String id = null;
-	private static LinkedList<TextProp> props = new LinkedList<>();
+	static HashSet<TextProp> props = new HashSet<>();
 
 	public TextProp(TextInputControl input) {
 		if(input instanceof TextField) {
@@ -24,33 +24,47 @@ public class TextProp implements Runnable {
 		else if(input instanceof TextArea) {
 			this.txtArea = new TextArea();
 			this.txtArea = (TextArea) input;
+			this.txtArea.setWrapText(true);
 			id = txtArea.getId();
 			props.add(this);
 		}
 		else return;
+		
+		if(input.getId() == Home.REF) input.setEditable(false);
+		
+	}
+	public TextProp() {}
+	public String getID() {
+		return id;
+	}
+	public TextField getTextField() {
+		return txtField;
+	}
+	public TextArea getTextArea() {
+		return txtArea;
 	}
 	private void managePlaceHolders() {
 		props.forEach(obj -> {
 			switch(obj.id) {
-			case "verse": obj.setPlaceHolder(Home.actV_PHOLDER);
+			case "verse": obj.setPlaceHolder(Home.ACT_V);
 			break;
 			
-			case "notes": obj.setPlaceHolder(Home.coment_PHOLDER);
+			case "notes": obj.setPlaceHolder(Home.CMNT);
 			break;
 			
-			case "references": obj.setPlaceHolder(Home.ref_PHOLDER);
+			case "references": obj.setPlaceHolder(Home.REF);
 			break;
 			
-			case "ch": obj.setPlaceHolder(Home.ch_PHOLDER);
+			case "ch": obj.setPlaceHolder(Home.CH);
 			break;
 			
-			case "verse number": obj.setPlaceHolder(Home.vnum_PHOLDER);
+			case "verse number": obj.setPlaceHolder(Home.VNUM);
 			break;
 			
-			case "version": obj.setPlaceHolder(Home.version_PHOLDER);
+			case "version": obj.setPlaceHolder(Home.VERSION);
 			break;
 			//	txtSearch
-			default: obj.setPlaceHolder(Home.search_PHOLDER);
+			default: obj.setPlaceHolder(Home.SEARCH);
 			break;
 			}
 		});

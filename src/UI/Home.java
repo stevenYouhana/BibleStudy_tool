@@ -92,7 +92,7 @@ public class Home extends JFrame implements Runnable {
 				Bible.mass_verses.forEach( verse -> {
 					if(Arrays.equals(verse.getVerseData(), new int[] {
 							selectedBook.getBooknum(),Integer.parseInt(txtCh.getText()),
-							Integer.parseInt(txtVNum.getText()),
+							Integer.parseInt(txtVNum.getText())
 							})) return; });
 				db.addVerse(
 						selectedBook.getTitle(),

@@ -10,23 +10,20 @@ import javafx.scene.control.TextArea;
 
 import Study.Bible;
 import Study.Book;
-import Study.Verse;
 import Utility.Log;
 
 
 // *********JAVAFX***********
 import javafx.beans.value.ChangeListener;
 import javafx.beans.value.ObservableValue;
-import javafx.collections.ObservableList;
 import javafx.scene.control.Label;
 import javafx.scene.control.ListView;
-import Study.Bible;
 
 public abstract class ListProps {
 
 	protected ListView<String> list;
 	Operations ops = new Operations();
-	int[] generateVerseCode = new int[3];
+	static int[] generateVerseCode = new int[3];
 	protected final Bible.Book_Comments BOOK_COMMENTS = new Bible.Book_Comments(); 
 	public Log p = new Log();
 	
@@ -179,15 +176,19 @@ class VerseList extends ListProps {
 }
 
 class RefedVerses extends ListProps {
+	Aquire.DB_Ops db = new Aquire.DB_Ops();
 	private static RefedVerses instant = null;
 	protected String verseBlock = "";
 	TextArea txtRefedVerse;
-//	Operations.DisplayRef displayRef;
+	Operations.DisplayRef displayRef;
 	
 	public RefedVerses(ListView<String> list, TextArea txtRefedVerse) {
 		super(list);
 		this.txtRefedVerse = txtRefedVerse;
+		list.setPlaceholder(new Label("No references added"));
 		instant = this;
+		//INIT CURRENT REFERENCES
+		db.INIT_REF_LIST();
 	}
 	
 	protected RefedVerses() {
@@ -209,23 +210,15 @@ class RefedVerses extends ListProps {
 	@Override
 	public void run() {
 		list.getSelectionModel().selectedItemProperty().addListener(new ChangeListener<String>() {
-
 			@Override
 			public void changed(ObservableValue<? extends String> arg0, String arg1, String arg2) {
-				// TODO Auto-generated method stub
-				p.p("refed verse changed");
-				if(list.getSelectionModel().getSelectedIndex() != -1) {
-					p.p("change in REF");
-//					displayRef = new Operations.DisplayRef(list.getSelectedValue());
-//					p.p("dispRef: "+displayRef.displayRefed());
-//					txtRefedVerse.setText(displayRef.displayRefed());
+				if(getListing().getSelectionModel().getSelectedIndex() != -1) {
+					displayRef = new Operations.DisplayRef(getListing().
+							getSelectionModel().getSelectedItem());
+					txtRefedVerse.setText(displayRef.displayRefed());
 				}				
 			}
-			
 		});
 	}
-
-
-
 
 }

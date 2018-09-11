@@ -28,3 +28,11 @@
 .list-view .scroll-bar:horizontal .decrement-button {
     -fx-padding:0;
 }
+.text-area .scroll-bar:horizontal .increment-arrow,
+.text-area .scroll-bar:horizontal .decrement-arrow,
+.text-area .scroll-bar:horizontal .increment-button,
+.text-area .scroll-bar:horizontal .decrement-button {
+	-fx-padding:0;
+}
+
+

@@ -25,13 +25,13 @@ import javafx.stage.Screen;
 public class Home extends Application implements Runnable {
 	Utility.Log p = new Utility.Log(); 
 	
-	final static String ch_PHOLDER = "ch";
-	final static String vnum_PHOLDER = "verse number";
-	final static String version_PHOLDER = "version";
-	final static String actV_PHOLDER = "verse";
-	final static String coment_PHOLDER = "notes";
-	final static String search_PHOLDER = "search";
-	final static String ref_PHOLDER = "references";
+	final static String CH = "ch";
+	final static String VNUM = "verse number";
+	final static String VERSION = "version";
+	final static String ACT_V = "verse";
+	final static String CMNT = "notes";
+	final static String SEARCH = "search";
+	final static String REF = "references";
 	static TextInputControl[] txtProps;
 	
 	//*********Operations***********
@@ -83,10 +83,10 @@ public class Home extends Application implements Runnable {
     txtVersion.setPrefSize(100, 40);
     txtSearch.setPrefSize(100, 40);
     
-    txtCh.setId(ch_PHOLDER);
-    txtVNum.setId(vnum_PHOLDER);
-    txtVersion.setId(version_PHOLDER);
-    txtSearch.setId(search_PHOLDER);
+    txtCh.setId(CH);
+    txtVNum.setId(VNUM);
+    txtVersion.setId(VERSION);
+    txtSearch.setId(SEARCH);
     
     
     //*********Text Area*************
@@ -97,9 +97,9 @@ public class Home extends Application implements Runnable {
     txtCommentary.setPrefSize(260, 170);
     txtRefedVerse.setPrefSize(260, 170);
     
-    txtActualVerse.setId(actV_PHOLDER);
-    txtCommentary.setId(coment_PHOLDER);
-    txtRefedVerse.setId(ref_PHOLDER);
+    txtActualVerse.setId(ACT_V);
+    txtCommentary.setId(CMNT);
+    txtRefedVerse.setId(REF);
     
     //*********Manage all input(/output) fields
     	txtProps = new TextInputControl[] {
