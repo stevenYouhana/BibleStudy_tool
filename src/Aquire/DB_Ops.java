@@ -5,7 +5,7 @@ import java.sql.PreparedStatement;
 import java.sql.SQLException;
 import java.sql.Statement;
 import java.sql.ResultSet;
-import java.util.ArrayList;
+import java.util.LinkedList;
 import java.util.HashMap;
 import java.util.Map;
 import javax.swing.DefaultListModel;
@@ -67,8 +67,8 @@ public class DB_Ops {
 		}
 	}
 	
-	public ArrayList<Verse> getVersesFor(Book b) {
-		ArrayList<Verse> verses = new ArrayList<Verse>(50);
+	public LinkedList<Verse> getVersesFor(Book b) {
+		LinkedList<Verse> verses = new LinkedList<Verse>();
 		Verse verse = null;
 		try(Connection con = DB_Connector.connect()){
 			Statement stmt = con.createStatement();

@@ -12,6 +12,7 @@ public class TextProp implements Runnable {
 	TextArea txtArea = null;
 	
 	String id = null;
+	//Use to search through prop IDs
 	static HashSet<TextProp> props = new HashSet<>();
 
 	public TextProp(TextInputControl input) {

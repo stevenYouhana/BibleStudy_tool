@@ -2,6 +2,7 @@ package Study;
 
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.LinkedList;
 import java.util.concurrent.atomic.AtomicInteger;
 
 import Utility.Log;
@@ -14,7 +15,7 @@ public class Book {
 	String title = null;
 	private final static AtomicInteger COUNTER = new AtomicInteger(0);
 	private final int booknum;
-	private ArrayList<Verse> verses = new ArrayList<>(100); //LinkedList?
+	private LinkedList<Verse> verses = new LinkedList<>();
 	public static Testament testament = null;
 	public Log p = new Log();
 	public Book(String title, Testament testament) {
@@ -31,24 +32,24 @@ public class Book {
 	public String getTitle() {
 		return title;
 	}
-	public void setVerses(ArrayList<Verse> verses) {
+	public void setVerses(LinkedList<Verse> verses) {
 		this.verses = verses;
 	}
 	public void updateVerses(int book, int ch, int vnum, String actualVerse) {
 		int[] newVerse = {book,ch,vnum};
 		for(Verse v : verses) {
 			if(Arrays.equals(newVerse, v.verseData)) {
-				//ERROR MESSAGE
+				//HANDLE
 				System.out.println("Verse already added!");
 				return;
 			}
 		}
 		verses.add(new Verse(book, ch, vnum, actualVerse));
 		Bible.mass_verses.add(new Verse(book, ch, vnum, actualVerse));
-		Bible.Referencing referencing = new Bible.Referencing(newVerse);
-		referencing.addVerse();
+//		Bible.Referencing referencing = new Bible.Referencing(newVerse);
+//		referencing.addVerse();
 	}
-	public ArrayList<Verse> getVerses() {
+	public LinkedList<Verse> getVerses() {
 		return verses;
 	}
 	public Verse findVerse(int[] verseCode) {

@@ -7,6 +7,8 @@ import javax.swing.JTextField;
 
 
 import javafx.application.Application;
+import javafx.collections.FXCollections;
+import javafx.collections.ObservableList;
 import javafx.geometry.Insets;
 import javafx.scene.Group;
 import javafx.scene.Scene;
@@ -21,10 +23,13 @@ import javafx.scene.layout.VBox;
 import javafx.stage.Stage;
 import javafx.geometry.Rectangle2D;
 import javafx.stage.Screen;
+import javafx.stage.Popup;
 
 public class Home extends Application implements Runnable {
 	Utility.Log p = new Utility.Log(); 
-	
+	ButtonProp addVerseProp;
+	ButtonProp addNoteProp;
+	ButtonProp addRefProp;
 	final static String CH = "ch";
 	final static String VNUM = "verse number";
 	final static String VERSION = "version";
@@ -52,8 +57,6 @@ public class Home extends Application implements Runnable {
     //primaryStage.setWidth(200);
     Group root = new Group();
     
-    //TEST placeholders
-
     
     
     Scene scene = new Scene(root, screenBounds.getWidth(), screenBounds.getHeight()-100);
@@ -66,7 +69,7 @@ public class Home extends Application implements Runnable {
     VBox hboxCrud = new VBox();
     VBox hboxTxtFlds = new VBox();
     
-    vboxLists.setPrefSize(300, 700);
+    vboxLists.setPrefSize(350, 700);
     hboxTexts.setPrefSize(600, 700);
     vboxButtons.setPrefSize(170,170);
     hboxTxtFlds.setPrefSize(170,170);
@@ -115,6 +118,7 @@ public class Home extends Application implements Runnable {
     ListView<String> lstBooks = new ListView<>();
     ListView<String> lstVerses = new ListView<>();
     ListView<String> lstRef = new ListView<>();
+
     lstBooks.setPrefSize(100, 400);
     lstVerses.setPrefSize(150, 400);
     lstRef.setPrefSize(150, 400);
@@ -124,22 +128,54 @@ public class Home extends Application implements Runnable {
 	Button btnAddVerse = new Button("Add verse");
 	Button btnAddComment = new Button("Add noted");
 	Button btnAddRef = new Button("Add reference");
-	
+	addVerseProp = new AddVerse(btnAddVerse);
+	addNoteProp = new AddNote(btnAddComment);
+	addRefProp = new AddRef(btnAddRef);
+	addVerseProp.prepThis().start();
 	
     btnAddVerse.setPrefSize(170, 50);
     btnAddComment.setPrefSize(170, 50);
     btnAddRef.setPrefSize(170, 50);
     
+    
+    //********ListView*********
     final ListProps BOOK_LIST = BookList.getInstant();
     ListProps verseList = new VerseList(lstVerses,txtActualVerse, txtCommentary);
     ListProps refedVerses = new RefedVerses(lstRef, txtRefedVerse);
     
+    //***********SEARCH VIEW***************
+    class SearchView implements Runnable {
+    	Operations.Search_Results search_results;
+    	Popup searchPopUp;
+    		public void run() {
+			searchPopUp = new Popup();
+			search_results = new Operations.Search_Results();
+			Button btnClose = new Button("close");
+//		    ObservableList<String> outcomes = FXCollections.observableArrayList("item1","item2"); 
+//		    ListView<String> outcome = new ListView<>(outcomes);
+		    BorderPane border = new BorderPane();
+		    VBox vbox = new VBox();
+		    vbox.getChildren().addAll(search_results.getOutcome());
+		    border.setLeft(vbox);
+		    border.setBottom(btnClose);
+		    searchPopUp.getContent().add(border);
+		    searchPopUp.setOpacity(0.9);
+		    searchPopUp.setHideOnEscape(true);
+		    searchPopUp.hideOnEscapeProperty();
+		    searchPopUp.setAnchorX(screenBounds.getMaxX()-10);
+		    searchPopUp.setAnchorY(screenBounds.getMaxY()-10);
+		    searchPopUp.show(primaryStage);
+		    btnClose.setOnAction(e -> {
+		    		searchPopUp.hide();
+		    });
+        }
+    }
     
     
     BOOK_LIST.run();
     verseList.run();
     refedVerses.run();
-    
+
     lstBooks = BOOK_LIST.getListing();
     lstVerses = verseList.getListing();
         
@@ -169,7 +205,8 @@ public class Home extends Application implements Runnable {
     primaryStage.setResizable(false);
     primaryStage.show();
     
-
+    SearchView searchView = new SearchView();
+    searchView.run();
   }
 
 }

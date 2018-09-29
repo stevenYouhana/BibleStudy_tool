@@ -45,6 +45,9 @@ class BookList extends ListProps {
 	private static BookList instant = null;
 	protected static Book selectedBook = null;
 
+	static {
+		selectedBook = Bible.books[0];
+	}
 	private BookList() {
 
 	}
@@ -54,7 +57,7 @@ class BookList extends ListProps {
 			instant = new BookList();
 			return instant;
 		}
-		return null;
+		return instant;
 	}
 
 	@Override
@@ -62,9 +65,6 @@ class BookList extends ListProps {
 		return BOOK_LIST;
 	}
 	
-	public Book getSelectedBook() {
-		return selectedBook;
-	}
 
 	public void run() {
 		BOOK_LIST = new ListView<>(ops.setBookList());
@@ -140,8 +140,10 @@ class VerseList extends ListProps {
 							ops.setRefList(generateVerseCode));
 					//**********SET VERSE TEXT***********
 					Bible.mass_verses.forEach( (verse) -> {
-						if(Arrays.equals(verse.getVerseData(), generateVerseCode))
+						if(Arrays.equals(verse.getVerseData(), generateVerseCode)) {
+							p.p("verseToString: "+verse.toString());
 							txtActualVerse.setText(verse.toString());
+						}
 					});
 				}
 			}

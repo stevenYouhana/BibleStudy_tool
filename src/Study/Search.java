@@ -1,50 +1,36 @@
 package Study;
 
-import java.awt.event.KeyEvent;
-import java.awt.event.KeyListener;
 import java.util.LinkedList;
+import java.util.List;
 
-import javax.swing.JTextField;
-
-import Utility.Log;
+import Study.Bible.Book_Verses;
+import javafx.scene.control.TextField;
 
 public class Search {
-	String lookFor = null;
-	private LinkedList verses = new LinkedList<Verse>();
-	String found = "";
 	String content = "";
-	JTextField txtSearch;
+	List<Verse> foundVerses = new LinkedList<>(); 
+	TextField txtSearch;
 	Utility.Log p =  new Utility.Log();
 	
-	public Search(JTextField txtSearch) {
+	public Search(TextField txtSearch) {
 		this.txtSearch = txtSearch;
 		
-		txtSearch.addKeyListener(new KeyListener() {
+		txtSearch.setOnKeyReleased(event -> {
 			Search_String searchString = null;
-				@Override
-				public void keyPressed(KeyEvent arg0) {
-					p.p("key pressesd: ");
-					searchString = new Search_String();
-					searchString.start();
-				}
-
-				@Override
-				public void keyReleased(KeyEvent arg0) {
-					
-				}
-
-				@Override
-				public void keyTyped(KeyEvent arg0) {
-					
-				}
+				p.p("key pressesd: ");
+				searchString = new Search_String();
+				searchString.start();
 		});
 	}
-
-	class Search_String extends Thread {
+	public List<Verse> getFoundVerses() {
+		return foundVerses;
+	}
+	private class Search_String extends Thread {
 		
 		@Override
 		public void run() {
-			p.p("running thread");
+			p.p("running thread >> clearing current list");
+			foundVerses.clear();
 			try {
 				p.p("sleeping");
 				Search_String.sleep(1000);
@@ -60,11 +46,14 @@ public class Search {
 	}
 	
 	public void generateVerses(String find) {
-
+		p.p("generateVerses: "+find);
 		Bible.mass_verses.forEach( (verse) -> {
 			content = verse.toString();
-			if(indexOf(content.toCharArray(),find.toCharArray()) != -1)
-				p.p("Search found in: "+verse.getID());
+			if(indexOf(content.toLowerCase().toCharArray(),
+					find.toLowerCase().toCharArray()) != -1) {
+				foundVerses.add(verse);
+				p.p("Search found in: "+Bible.Book_Verses.MAP.get(verse.getVerseData()[0]));
+			}
 		});
 	}
 	

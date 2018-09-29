@@ -56,7 +56,7 @@ public class Verse {
 	}
 	@Override
 	public String toString() {
-		return verseData[1]+": "+verseData[2]+" \""+actualVerse;
+		return verseData[1]+": "+verseData[2]+" "+actualVerse;
 	}
 	//NOT IN USE
 	public void setParentVerse(int id) {

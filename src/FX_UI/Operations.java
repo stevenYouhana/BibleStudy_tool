@@ -1,19 +1,19 @@
 package FX_UI;
 
 import java.util.Arrays;
-import java.util.LinkedList;
+
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
-import javax.swing.DefaultListModel;
 
 import Study.Bible;
 import Study.Book;
+import Study.Search;
 import Study.Verse;
 import Utility.Log;
 import javafx.collections.FXCollections;
 import javafx.collections.ObservableList;
-import javafx.scene.control.SelectionModel;
+import javafx.scene.control.ListView;
 
 public class Operations {
 	
@@ -76,7 +76,6 @@ public class Operations {
 		Log p =  new Log();
 		
 		DisplayRef(String verseBlock) {
-			p.p("verseBlock: "+verseBlock);
 			if(verseBlock != null && !verseBlock.isEmpty()) {
 				this.verseBlock = verseBlock;
 				name = verseBlock.substring(0,verseBlock.indexOf(' '));
@@ -86,7 +85,6 @@ public class Operations {
 		}
 		
 		public String displayRefed() {
-			p.p("for name: "+name);
 			if(name != null) {
 				Bible.Book_Verses.MAP.forEach( (bookNum, bookName) -> {
 					if(name.equals(bookName)) {
@@ -97,7 +95,6 @@ public class Operations {
 					vData[1] = Integer.parseInt(matcher.group(1));
 					vData[2] = Integer.parseInt(matcher.group(3));
 				}
-				p.p("vData: "+vData[0]);
 				for(Verse verse : Bible.mass_verses) {
 					if(Arrays.equals(verse.getVerseData(), vData))
 						return verse.toString();
@@ -106,5 +103,25 @@ public class Operations {
 			return null;
 		}
 
+	}
+	//HANDLE SEARCH
+	static class Search_Results {
+		Utility.Log p = new Utility.Log();
+		//TextField txtSearch;
+		Search search;
+		Search_Results() {
+			TextProp.props.forEach(prop -> {
+				if(prop.getID() == Home.SEARCH) search = new Search(prop.getTextField());
+			});
+			if(search == null) p.p("SEARCH = NULL >> Search_Results");
+		}
+	    ObservableList<String> outcomes = FXCollections.observableArrayList("item1","item2"); 
+	    ListView<String> outcome = new ListView<>(outcomes);
+	    
+	    public ListView<String> getOutcome() {
+	    		search.getFoundVerses().forEach(v -> outcomes.add(v.getVerseStack()));
+	    		outcome.setItems(outcomes);
+	    		return outcome;
+	    }
 	}
 }
