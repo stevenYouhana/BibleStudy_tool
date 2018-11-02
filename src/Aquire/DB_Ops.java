@@ -99,7 +99,7 @@ public class DB_Ops {
 				break;
 			}
 		}
-		String sql = "INSERT INTO material.Verse (chapter,vnum,booknum,verse) VALUES("
+		String sql = "INSERT INTO material.verse (chapter,vnum,booknum,verse) VALUES("
 				+ ch+","+vnum+","+booknum+", '"+actualVerse+"');";
 		try(Connection con = DB_Connector.connect()){
 			Statement stmt = con.createStatement(ResultSet.
@@ -108,10 +108,10 @@ public class DB_Ops {
 			
 		}
 		catch(SQLException sqle) {
-			System.out.println(sqle);
+			System.out.println("addVerse: "+sqle);
 		}
 		catch(Exception e) {
-			System.out.println(e);
+			System.out.println("addVerse"+e);
 		}	
 	}
 	public final void initComments(Map<int[],String> map) {

@@ -90,7 +90,7 @@ class AddVerse extends ButtonProp {
 				BookList.selectedBook.getTitle(),
 				Integer.parseInt(super.getTxtProp(Home.CH).getText()),
 				Integer.parseInt(super.getTxtProp(Home.VNUM).getText()),
-				super.getTxtProp(Home.ACT_V).getText().concat("\r\n").
+				super.getTxtProp(Home.ACT_V).getText().concat("\r\n\r\n").
 				concat(super.getTxtProp(Home.VERSION).getText())
 				);
 	}
@@ -100,7 +100,8 @@ class AddVerse extends ButtonProp {
 		updateVerses(BookList.selectedBook.getBooknum(),
 				Integer.parseInt(super.getTxtProp(Home.CH).getText()),
 				Integer.parseInt(super.getTxtProp(Home.VNUM).getText()),
-				super.getTxtProp(Home.VERSION).getText()
+				super.getTxtProp(Home.ACT_V).getText().concat("\r\n\r\n").
+				concat(super.getTxtProp(Home.VERSION).getText())
 				);
 	}
 	@Override
