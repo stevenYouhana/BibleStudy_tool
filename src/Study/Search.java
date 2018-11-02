@@ -1,44 +1,53 @@
 package Study;
 
-import java.util.LinkedList;
 import java.util.List;
+import java.util.Set;
+import java.util.concurrent.TimeUnit;
 
-import Study.Bible.Book_Verses;
+import javafx.collections.FXCollections;
 import javafx.scene.control.TextField;
 
 public class Search {
 	String content = "";
-	List<Verse> foundVerses = new LinkedList<>(); 
-	TextField txtSearch;
+	public volatile static List<Verse> foundVerses = null;
+	private TextField txtSearch;
+	Search_String searchString;
 	Utility.Log p =  new Utility.Log();
 	
 	public Search(TextField txtSearch) {
 		this.txtSearch = txtSearch;
-		
-		txtSearch.setOnKeyReleased(event -> {
-			Search_String searchString = null;
-				p.p("key pressesd: ");
-				searchString = new Search_String();
+		foundVerses = FXCollections.observableArrayList();
+		p.p("init foundVerses: "+foundVerses);
+		this.txtSearch.setOnKeyReleased(event -> {
+			p.p("searching...");
+				searchString = new Search_String(txtSearch);
 				searchString.start();
+				synchronized(this) {
+					if(!foundVerses.isEmpty()) notifyAll();
+				}
 		});
-	}
-	public List<Verse> getFoundVerses() {
-		return foundVerses;
-	}
-	private class Search_String extends Thread {
 		
+	}
+	public Set<String> getFoundVerses() {
+		Set<String> set = FXCollections.observableSet();
+		foundVerses.forEach( verse -> {
+			set.add(verse.toString());
+		});
+		foundVerses.clear();
+		return set;
+	}
+	public class Search_String extends Thread {
+		private TextField txtSearch;
+		protected Search_String(TextField txtSearch) {
+			this.txtSearch = txtSearch;
+		}
 		@Override
 		public void run() {
-			p.p("running thread >> clearing current list");
-			foundVerses.clear();
+			p.p("searchString run for "+txtSearch.getText());
+			
 			try {
-				p.p("sleeping");
-				Search_String.sleep(1000);
-				synchronized(txtSearch) {
-					p.p("synch method");
-					p.p("searching for: "+txtSearch.getText());
+				TimeUnit.SECONDS.sleep(1);	
 					generateVerses(txtSearch.getText());
-				}
 			} catch (InterruptedException e) {
 				p.p("Search_search: "+e.toString());
 			}
@@ -46,13 +55,12 @@ public class Search {
 	}
 	
 	public void generateVerses(String find) {
-		p.p("generateVerses: "+find);
 		Bible.mass_verses.forEach( (verse) -> {
 			content = verse.toString();
 			if(indexOf(content.toLowerCase().toCharArray(),
 					find.toLowerCase().toCharArray()) != -1) {
 				foundVerses.add(verse);
-				p.p("Search found in: "+Bible.Book_Verses.MAP.get(verse.getVerseData()[0]));
+				p.p("verse list"+foundVerses);
 			}
 		});
 	}
@@ -77,7 +85,7 @@ public class Search {
                     return i;
                 }
             }
-            // i += needle.length - j; // For naive method
+            // i += needle.length - j; // For native method
             i += Math.max(offsetTable[needle.length - 1 - j], charTable[haystack[i]]);
         }
         return -1;

@@ -1,7 +1,7 @@
 package FX_UI;
 
 import java.util.Arrays;
-
+import java.util.List;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
@@ -11,9 +11,11 @@ import Study.Book;
 import Study.Search;
 import Study.Verse;
 import Utility.Log;
+import javafx.application.Platform;
 import javafx.collections.FXCollections;
 import javafx.collections.ObservableList;
 import javafx.scene.control.ListView;
+import javafx.scene.control.TextField;
 
 public class Operations {
 	
@@ -105,23 +107,63 @@ public class Operations {
 
 	}
 	//HANDLE SEARCH
-	static class Search_Results {
+	public static class Search_Results extends Study.Search implements Runnable {
+		
 		Utility.Log p = new Utility.Log();
-		//TextField txtSearch;
-		Search search;
-		Search_Results() {
-			TextProp.props.forEach(prop -> {
-				if(prop.getID() == Home.SEARCH) search = new Search(prop.getTextField());
-			});
-			if(search == null) p.p("SEARCH = NULL >> Search_Results");
+		ObservableList<String> outcomes = FXCollections.observableArrayList();
+		
+		public Search_Results(TextField txtSearch) {
+			super(txtSearch);
+			
 		}
-	    ObservableList<String> outcomes = FXCollections.observableArrayList("item1","item2"); 
+	     void update() {
+			new Thread( () ->  {
+				outcomes.clear();
+//				while(super.getFoundVerses().isEmpty()) {
+//					try {
+//						Thread.sleep(500);
+//						
+//					} catch(InterruptedException ie) {
+//						p.p("Search_Results: "+ie);
+//					}
+//				}
+				Platform.setImplicitExit(false);
+				if(!super.foundVerses.isEmpty()) {
+					Platform.runLater(() -> {
+						p.p("load more");
+						super.getFoundVerses().forEach( (verse) -> outcomes.add(verse.toString()));
+					});
+				}
+			}).start();
+	    }
+	    
 	    ListView<String> outcome = new ListView<>(outcomes);
 	    
-	    public ListView<String> getOutcome() {
-	    		search.getFoundVerses().forEach(v -> outcomes.add(v.getVerseStack()));
-	    		outcome.setItems(outcomes);
-	    		return outcome;
+	    
+	    public ObservableList<String> getOutcome() {
+	    		run();
+	    		p.p("getOutcome: "+outcome.getItems());
+	    		return outcomes;
+	    }
+	    public void run() {
+	    		outcomes.clear();
+	    		p.p("outcomes now: "+super.getFoundVerses());
+	    		//super.getFoundVerses().forEach( (verse) -> outcomes.add(verse.toString()));
+//			while(super.getFoundVerses().isEmpty()) {
+//				try {
+//					Thread.sleep(500);
+//					
+//				} catch(InterruptedException ie) {
+//					p.p("Search_Results: "+ie);
+//				}
+//			}
+//			Platform.setImplicitExit(false);
+//			if(!super.getFoundVerses().isEmpty()) {
+//				Platform.runLater(() -> {
+//					p.p("load more");
+//					super.getFoundVerses().forEach( (verse) -> outcomes.add(verse.toString()));
+//				});
+//			}
 	    }
 	}
 }

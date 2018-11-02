@@ -1,12 +1,9 @@
 package FX_UI;
 
 
-
-
-import javax.swing.JTextField;
-
-
+import Study.Search;
 import javafx.application.Application;
+import javafx.application.Platform;
 import javafx.collections.FXCollections;
 import javafx.collections.ObservableList;
 import javafx.geometry.Insets;
@@ -26,7 +23,13 @@ import javafx.stage.Screen;
 import javafx.stage.Popup;
 
 public class Home extends Application implements Runnable {
+	protected static SearchView searchView;
+	public static Home.SearchView getHome_instant() {
+		if(searchView != null) return searchView;
+		return null;
+	}
 	Utility.Log p = new Utility.Log(); 
+	Rectangle2D screenBounds;
 	ButtonProp addVerseProp;
 	ButtonProp addNoteProp;
 	ButtonProp addRefProp;
@@ -38,17 +41,127 @@ public class Home extends Application implements Runnable {
 	final static String SEARCH = "search";
 	final static String REF = "references";
 	static TextInputControl[] txtProps;
+	Popup searchPopUp;
 	
-	//*********Operations***********
+	VBox vboxLists;
+    HBox hboxTexts;
+    VBox vboxButtons;
+    VBox hboxCrud;
+    VBox hboxTxtFlds;
+    
 	
-	@Override
+	TextField txtCh;
+	TextField txtVNum;
+	TextField txtVersion;
+	TextField txtSearch;
+	
+
+    TextArea txtActualVerse;
+    TextArea txtCommentary;
+    TextArea txtRefedVerse;
+    
+	
+    public void initializer() {
+	    	txtCh = new TextField();
+	    	vboxLists = new VBox();
+	    hboxTexts = new HBox();
+	    vboxButtons = new VBox();
+	    hboxCrud = new VBox();
+	    hboxTxtFlds = new VBox();
+	    
+		
+	    txtCh = new 	TextField();
+	    	txtVNum = new 	TextField();
+	    	txtVersion = new 	TextField();
+	    	txtSearch = new 	TextField();
+	    	
+	
+	    //*********Text Area*************
+	    txtActualVerse = new TextArea();
+	    txtCommentary = new TextArea();
+	    txtRefedVerse = new TextArea();
+	    
+	    screenBounds = Screen.getPrimary().getVisualBounds();
+    }
+	
+    @Override
 	public void run() {
 		Application.launch();
-	}
-
+	
+    }
+    
+    public class SearchView implements Runnable {
+	    	Stage stage;
+	    	ListView<String> list = new ListView<>();
+	    	ObservableList<String> outcomes = FXCollections.observableArrayList();
+//	    	Search searchEngine;
+	    	Search searchEngine;
+	    
+	    	public SearchView(Stage stage) {
+	    		this.stage = stage;
+	    		searchView = this;
+	    	}
+	    	public void getSearchPopup() {
+	    		searchPopUp.show(stage);
+	    	}
+	    	public SearchView() {
+	    	}
+	    public void showPop() {
+	    		searchPopUp.show(stage);
+	    }
+	    public Thread lookForFoundVerses() {
+	    		return new Thread( () -> {
+	    			searchEngine = new Search(txtSearch);
+	    			p.p("lookout Thread");
+	    			while(true) {
+	    				try {
+	    					synchronized(searchEngine) {
+	    						searchEngine.wait();
+	    					}
+	    				} catch(InterruptedException ie) {
+	    					p.p("lookOut inturptd "+ie);
+	    				}
+	    				p.p("lookOut notified");
+//	    				p.p("and found: "+Search.foundVerses);
+	    				Platform.runLater(() -> {
+	    					searchPopUp.show(stage);
+	    					outcomes.clear();
+	    					outcomes.addAll(searchEngine.getFoundVerses());
+	    				});
+	    				
+	    			}
+	    		});
+	    }
+	    //Run this on a different thread?
+		public void run() {
+			list.setItems(outcomes);
+			p.p("search view run!");
+			searchPopUp = new Popup();
+			Button btnClose = new Button("close");
+		    BorderPane border = new BorderPane();
+		    VBox vbox = new VBox();
+		    vbox.getChildren().add(list);
+		    border.setLeft(vbox);
+		    border.setBottom(btnClose);
+		    searchPopUp.getContent().add(border);
+		    searchPopUp.setOpacity(0.9);
+		    searchPopUp.setHideOnEscape(true);
+		    searchPopUp.hideOnEscapeProperty();
+		    searchPopUp.setAnchorX(screenBounds.getMaxX()-10);
+		    searchPopUp.setAnchorY(screenBounds.getMaxY()-10);
+		    //searchPopUp.show(stage);
+		    btnClose.setOnAction(e -> {
+		    		searchPopUp.hide();
+		    });
+		    lookForFoundVerses().start();
+		}
+    }
+    
+    
+    
   @Override
   public void start(Stage primaryStage) {
-	Rectangle2D screenBounds = Screen.getPrimary().getVisualBounds();
+	initializer();
     primaryStage.setTitle("Bible study");
     primaryStage.setX(screenBounds.getMinX());
     primaryStage.setY(screenBounds.getMinX());
@@ -63,11 +176,6 @@ public class Home extends Application implements Runnable {
     // create a grid pane
     BorderPane border = new BorderPane();
     border.setId("main-border");
-    VBox vboxLists = new VBox();
-    HBox hboxTexts = new HBox();
-    VBox vboxButtons = new VBox();
-    VBox hboxCrud = new VBox();
-    VBox hboxTxtFlds = new VBox();
     
     vboxLists.setPrefSize(350, 700);
     hboxTexts.setPrefSize(600, 700);
@@ -76,11 +184,6 @@ public class Home extends Application implements Runnable {
     border.setPrefSize(screenBounds.getWidth(), screenBounds.getHeight()-100);
     
     
-    //*********Text Field************
-	TextField txtCh = new TextField();
-	TextField txtVNum = new TextField();
-	TextField txtVersion = new TextField();
-	TextField txtSearch = new TextField();
     txtCh.setPrefSize(50, 40);
     txtVNum.setPrefSize(100, 40);
     txtVersion.setPrefSize(100, 40);
@@ -91,11 +194,7 @@ public class Home extends Application implements Runnable {
     txtVersion.setId(VERSION);
     txtSearch.setId(SEARCH);
     
-    
-    //*********Text Area*************
-    TextArea txtActualVerse = new TextArea();
-    TextArea txtCommentary = new TextArea();
-    TextArea txtRefedVerse = new TextArea();
+       
     txtActualVerse.setPrefSize(260, 170);
     txtCommentary.setPrefSize(260, 170);
     txtRefedVerse.setPrefSize(260, 170);
@@ -104,7 +203,6 @@ public class Home extends Application implements Runnable {
     txtCommentary.setId(CMNT);
     txtRefedVerse.setId(REF);
     
-    //*********Manage all input(/output) fields
     	txtProps = new TextInputControl[] {
     		txtCh, txtVNum,txtVersion, txtSearch, txtActualVerse,
     		txtCommentary,txtRefedVerse
@@ -114,7 +212,6 @@ public class Home extends Application implements Runnable {
         textProp.run();
     }
     
-    //*********Init ListViews***********
     ListView<String> lstBooks = new ListView<>();
     ListView<String> lstVerses = new ListView<>();
     ListView<String> lstRef = new ListView<>();
@@ -123,7 +220,6 @@ public class Home extends Application implements Runnable {
     lstVerses.setPrefSize(150, 400);
     lstRef.setPrefSize(150, 400);
     
-    //********Buttons*********
 
 	Button btnAddVerse = new Button("Add verse");
 	Button btnAddComment = new Button("Add noted");
@@ -137,40 +233,10 @@ public class Home extends Application implements Runnable {
     btnAddComment.setPrefSize(170, 50);
     btnAddRef.setPrefSize(170, 50);
     
-    
-    //********ListView*********
     final ListProps BOOK_LIST = BookList.getInstant();
     ListProps verseList = new VerseList(lstVerses,txtActualVerse, txtCommentary);
     ListProps refedVerses = new RefedVerses(lstRef, txtRefedVerse);
-    
-    //***********SEARCH VIEW***************
-    class SearchView implements Runnable {
-    	Operations.Search_Results search_results;
-    	Popup searchPopUp;
-    		public void run() {
-			searchPopUp = new Popup();
-			search_results = new Operations.Search_Results();
-			Button btnClose = new Button("close");
-//		    ObservableList<String> outcomes = FXCollections.observableArrayList("item1","item2"); 
-//		    ListView<String> outcome = new ListView<>(outcomes);
-		    BorderPane border = new BorderPane();
-		    VBox vbox = new VBox();
-		    vbox.getChildren().addAll(search_results.getOutcome());
-		    border.setLeft(vbox);
-		    border.setBottom(btnClose);
-		    searchPopUp.getContent().add(border);
-		    searchPopUp.setOpacity(0.9);
-		    searchPopUp.setHideOnEscape(true);
-		    searchPopUp.hideOnEscapeProperty();
-		    searchPopUp.setAnchorX(screenBounds.getMaxX()-10);
-		    searchPopUp.setAnchorY(screenBounds.getMaxY()-10);
-		    searchPopUp.show(primaryStage);
-		    btnClose.setOnAction(e -> {
-		    		searchPopUp.hide();
-		    });
-        }
-    }
-    
+   
     
     BOOK_LIST.run();
     verseList.run();
@@ -179,8 +245,6 @@ public class Home extends Application implements Runnable {
     lstBooks = BOOK_LIST.getListing();
     lstVerses = verseList.getListing();
         
-
-    //**********Landscaping************
     hboxTexts.getChildren().addAll(lstBooks,lstVerses,lstRef);
     vboxLists.getChildren().addAll(txtActualVerse,txtCommentary,txtRefedVerse);
     vboxButtons.getChildren().addAll(btnAddVerse,btnAddComment,btnAddRef);
@@ -204,10 +268,11 @@ public class Home extends Application implements Runnable {
     scene.getStylesheets().add("FX_UI/MainStyles.css");
     primaryStage.setResizable(false);
     primaryStage.show();
-    
-    SearchView searchView = new SearchView();
+
+    searchView = new SearchView(primaryStage);
     searchView.run();
   }
+
 
 }
 
