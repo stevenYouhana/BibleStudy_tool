@@ -8,8 +8,10 @@ import java.sql.ResultSet;
 import java.util.LinkedList;
 import java.util.HashMap;
 import java.util.Map;
-import javax.swing.DefaultListModel;
+import java.util.Map.Entry;
+import java.util.Set;
 
+//import javax.swing.DefaultListModel;
 import Study.Bible;
 import Study.Book;
 import Study.Verse;
@@ -50,22 +52,22 @@ public class DB_Ops {
 		}
 		return books;
 	}
-	public static final void SET_BOOKS_MODEL(DefaultListModel<String> model) {
-
-		try(Connection con = DB_Connector.connect()){
-			Statement stmt = con.createStatement();
-			ResultSet rs = stmt.executeQuery("SELECT booktitle FROM material.Book;");
-			while(rs.next()) {
-				model.addElement(rs.getString("booktitle"));
-			}
-		}
-		catch(SQLException sqle) {
-			System.out.println("GET_BOOKS_MODEL: "+sqle);
-		}
-		catch(Exception e) {
-			System.out.println("GET_BOOKS_MODEL");
-		}
-	}
+//	public static final void SET_BOOKS_MODEL(DefaultListModel<String> model) {
+//
+//		try(Connection con = DB_Connector.connect()){
+//			Statement stmt = con.createStatement();
+//			ResultSet rs = stmt.executeQuery("SELECT booktitle FROM material.Book;");
+//			while(rs.next()) {
+//				model.addElement(rs.getString("booktitle"));
+//			}
+//		}
+//		catch(SQLException sqle) {
+//			System.out.println("GET_BOOKS_MODEL: "+sqle);
+//		}
+//		catch(Exception e) {
+//			System.out.println("GET_BOOKS_MODEL");
+//		}
+//	}
 	
 	public LinkedList<Verse> getVersesFor(Book b) {
 		LinkedList<Verse> verses = new LinkedList<Verse>();
@@ -115,18 +117,48 @@ public class DB_Ops {
 		}	
 	}
 	public final void initComments(Map<int[],String> map) {
-		String sql = "SELECT * FROM material.Verse;";
+		class EditMap {
+			
+			void addKey(final ResultSet rs) {
+				try {
+					p.p("vnum: "+rs.getInt("vnum"));
+					map.put(new int[] {rs.getInt("booknum"),rs.getInt("chapter"),rs.getInt("vnum")}
+							, "Add notes...");
+					p.p("key added for "+rs.getInt("vnum"));
+				} catch (SQLException e) {
+					p.p("EditMap.addKey");e.printStackTrace();
+				}
+			}
+			void putKeyAndValue(final ResultSet rs) {
+				try {
+					map.put(
+							new int[] {
+									rs.getInt("booknum"),rs.getInt("chapter"),rs.getInt("vnum")
+									},
+							rs.getString("comment")
+					);
+				} catch (SQLException e) {
+					p.p("EditMap.addKeyAndValue");
+					e.printStackTrace();
+				}
+			}
+		};
 		
+		String sql = "SELECT * FROM material.verse;";
+		EditMap editMap = new EditMap();
 		try(Connection con  = DB_Connector.connect()){
 			Statement stmt = con.createStatement();
 			ResultSet rs = stmt.executeQuery(sql);
 			while(rs.next()) {
-				map.put(
-						new int[] {
-								rs.getInt("booknum"),rs.getInt("chapter"),rs.getInt("vnum")
-								},
-						rs.getString("comment")
-				);
+				if(rs.getString("comment") == null) {
+					p.p("comment Empty");
+					editMap.addKey(rs);
+				}
+				else {
+					p.p("comment exist");
+					editMap.putKeyAndValue(rs);
+				}
+				
 			}
 		}
 		catch(SQLException sqle) {
@@ -182,7 +214,7 @@ public class DB_Ops {
 	}
 	
 	// USED IN Bible.Referencing
-	public void Pointer(int actual, int pointer) {
+	public void addPointer(int actual, int pointer) {
 		if(actual != pointer) {
 			p.p("DB_OPs >> adding :"+actual+" to "+pointer);
 			String sql = "UPDATE material.verse SET point_to = array_append(point_to, ";

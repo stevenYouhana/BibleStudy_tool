@@ -1,9 +1,14 @@
-package UI;
+package Handling;
 
 
+import java.util.ArrayList;
 import java.util.Arrays;
-import javax.swing.JButton;
-import javax.swing.JLabel;
+import java.util.List;
+
+import FX_UI.Home;
+import FX_UI.ListProps;
+import javafx.scene.control.Button;
+import javafx.scene.control.Label;
 
 import Study.Bible;
 
@@ -33,41 +38,42 @@ public class AddRef {
 		return beingRefdDATA;
 	}
 	
-	public void Go() {
+	public void addToDB() {
 		Bible.Referencing referencing = new Bible.Referencing();
 		referencing.addReference(this);	
 	}
 	
-	static class VerseRef implements Runnable {
+	public static class VerseRef implements Runnable {
 		AddRef ar;
-		private JButton[] buttons = null;
-		private JLabel mainLabel;
+		private ArrayList<Button> buttons = new ArrayList<>(3);
+		private Label lblSelectRef;
 		Object tempVerse = null;
 		int[] tempVerseLiteral = null;
-		public VerseRef(JButton[] buttons, JLabel mainLabel) {
+		public VerseRef(List<Button> buttons, Label lblSelectRef) {
 			ar = new AddRef();
-			this.buttons = buttons;
-			this.mainLabel = mainLabel;
-			tempVerse = Home.generateVerseCode;
+			this.buttons = (ArrayList<Button>)buttons;
+			
+			this.lblSelectRef = lblSelectRef;
+			tempVerse = ListProps.generateVerseCode;
 			tempVerseLiteral = Arrays.copyOf(
-					Home.generateVerseCode,Home.generateVerseCode.length);
-			ar.setToRefDATA(Home.generateVerseCode);
+					ListProps.generateVerseCode,ListProps.generateVerseCode.length);
+			ar.setToRefDATA(ListProps.generateVerseCode);
 		}
 		@Override
 		public void run() {
-			Utilities.disable_buttons(buttons);
+			Handling.Utilities.disable_buttons(buttons);
 			//<font size="3" color="red">This is some text!</font>
-			mainLabel.setText("Select Verse");
-			VerseSelect vSelect = new VerseSelect(buttons, mainLabel);
+			lblSelectRef.setText("Select Verse");
+			VerseSelect vSelect = new VerseSelect(buttons, lblSelectRef);
 			vSelect.start();
 		}
 		
 		private class VerseSelect extends Thread {
-			private JButton[] buttons;
-			private JLabel mainLabel;
-			public VerseSelect(JButton[] buttons, JLabel mainLabel) {
+			private ArrayList<Button> buttons;
+			private Label lblSelectRef;
+			public VerseSelect(ArrayList<Button> buttons, Label lblSelectRef) {
 				this.buttons = buttons;
-				this.mainLabel = mainLabel;
+				this.lblSelectRef = lblSelectRef;
 			}
 			public void run() {
 				BeingRefed beingRefed = new BeingRefed();
@@ -81,18 +87,18 @@ public class AddRef {
 						ie.printStackTrace();
 					}
 					System.out.print("refd verse: ");
-					ar.setBeingRefed(Home.generateVerseCode);
-					ar.Go();
+					ar.setBeingRefed(ListProps.generateVerseCode);
+					ar.addToDB();
 					Bible.mass_verses.forEach( (verse) -> {
 						if(Arrays.equals(verse.getVerseData(),tempVerseLiteral)) {
 							if(!(verse.getReferences().contains(
-									Bible.Book_Verses.getID(Home.generateVerseCode))))
-							verse.addReferences(Bible.Book_Verses.getID(Home.generateVerseCode));
-							Utilities.enable_buttons(buttons);
-							mainLabel.setText(Home.mainLabelText);
+									Bible.Book_Verses.getID(ListProps.generateVerseCode))))
+							verse.addReferences(Bible.Book_Verses.getID(ListProps.generateVerseCode));
+							lblSelectRef.setText(Home.TITLE);
 						}
 					});
-					Home.generateVerseCode = null;	//resetting verse code
+					Handling.Utilities.enable_buttons(buttons);
+					ListProps.generateVerseCode = null;
 				}
 			}
 		}
@@ -102,8 +108,8 @@ public class AddRef {
 				synchronized(this) {
 					for(;;) {
 						System.out.println("selecting verse...");
-						if(Home.generateVerseCode != tempVerse &&
-								Home.generateVerseCode != null) break;
+						if(ListProps.generateVerseCode != tempVerse &&
+								ListProps.generateVerseCode != null) break;
 					}
 					System.out.println("verse selected!");
 					notify();

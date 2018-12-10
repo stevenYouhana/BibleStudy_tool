@@ -13,7 +13,9 @@ import javafx.scene.control.ListView;
 import javafx.scene.control.TextArea;
 import javafx.scene.control.TextField;
 import javafx.scene.control.TextInputControl;
+import javafx.scene.input.MouseDragEvent;
 import javafx.scene.control.Button;
+import javafx.scene.control.Label;
 import javafx.scene.layout.BorderPane;
 import javafx.scene.layout.HBox;
 import javafx.scene.layout.VBox;
@@ -21,11 +23,13 @@ import javafx.stage.Stage;
 import javafx.geometry.Rectangle2D;
 import javafx.stage.Screen;
 import javafx.stage.Popup;
+import javafx.beans.value.ChangeListener;
+import javafx.beans.value.ObservableValue;
 
 public class Home extends Application implements Runnable {
 	protected static SearchView searchView;
 	public static Home.SearchView getHome_instant() {
-		if(searchView != null) return searchView;
+		if (searchView != null) return searchView;
 		return null;
 	}
 	Utility.Log p = new Utility.Log(); 
@@ -33,6 +37,8 @@ public class Home extends Application implements Runnable {
 	ButtonProp addVerseProp;
 	ButtonProp addNoteProp;
 	ButtonProp addRefProp;
+	public static Label lblSelectRef;
+	
 	final static String CH = "ch";
 	final static String VNUM = "verse number";
 	final static String VERSION = "version";
@@ -40,8 +46,10 @@ public class Home extends Application implements Runnable {
 	final static String CMNT = "notes";
 	final static String SEARCH = "search";
 	final static String REF = "references";
+	public final static String TITLE = "Bible study";
 	static TextInputControl[] txtProps;
 	Popup searchPopUp;
+	Popup searchPopUpSelectionView;
 	
 	VBox vboxLists;
     HBox hboxTexts;
@@ -75,6 +83,7 @@ public class Home extends Application implements Runnable {
 	    	txtVersion = new 	TextField();
 	    	txtSearch = new 	TextField();
 	    	
+	    	lblSelectRef = new Label();
 	
 	    //*********Text Area*************
 	    txtActualVerse = new TextArea();
@@ -93,6 +102,7 @@ public class Home extends Application implements Runnable {
     public class SearchView implements Runnable {
 	    	Stage stage;
 	    	ListView<String> list = new ListView<>();
+	    	TextArea txtSelectedVerse = new TextArea(); 
 	    	ObservableList<String> outcomes = FXCollections.observableArrayList();
 //	    	Search searchEngine;
 	    	Search searchEngine;
@@ -100,6 +110,18 @@ public class Home extends Application implements Runnable {
 	    	public SearchView(Stage stage) {
 	    		this.stage = stage;
 	    		searchView = this;
+	    		this.list.getSelectionModel().selectedItemProperty().addListener(new ChangeListener<String>() {
+	    			@Override
+	    			public void changed(ObservableValue<? extends String> arg0, String arg1, String arg2) {
+	    				p.p("search selection change");
+	    				searchPopUpSelectionView.show(stage);
+	    				txtSelectedVerse.setText(list.getSelectionModel().getSelectedItem());
+	    			}
+	    		});
+	    		txtSelectedVerse.setWrapText(true);
+	    		txtSelectedVerse.setEditable(false);
+	    		txtSelectedVerse.setId("selected-search-txt-area");
+	    		txtSelectedVerse.setStyle("MainStyles.css");
 	    	}
 	    	public void getSearchPopup() {
 	    		searchPopUp.show(stage);
@@ -112,46 +134,58 @@ public class Home extends Application implements Runnable {
 	    public Thread lookForFoundVerses() {
 	    		return new Thread( () -> {
 	    			searchEngine = new Search(txtSearch);
-	    			p.p("lookout Thread");
-	    			while(true) {
+	    			while (true) {
 	    				try {
-	    					synchronized(searchEngine) {
+	    					synchronized (searchEngine) {
 	    						searchEngine.wait();
 	    					}
-	    				} catch(InterruptedException ie) {
-	    					p.p("lookOut inturptd "+ie);
+	    				} catch (InterruptedException ie) {
+	    					p.p("lookForFoundVerses() "+ie);
 	    				}
-	    				p.p("lookOut notified");
 //	    				p.p("and found: "+Search.foundVerses);
-	    				Platform.runLater(() -> {
+	    				Platform.runLater( () -> {
 	    					searchPopUp.show(stage);
 	    					outcomes.clear();
 	    					outcomes.addAll(searchEngine.getFoundVerses());
 	    				});
-	    				
 	    			}
 	    		});
 	    }
-	    //Run this on a different thread?
+	    public void showSearchPopUpSelection() {
+	    		searchPopUpSelectionView.show(stage);
+	    		
+	    }
 		public void run() {
 			list.setItems(outcomes);
 			p.p("search view run!");
 			searchPopUp = new Popup();
+			searchPopUpSelectionView = new Popup();
+//			Handling.Utilities.makeDraggable(this.stage, searchPopUp.getOwnerNode());
 			Button btnClose = new Button("close");
 		    BorderPane border = new BorderPane();
+		    BorderPane border_SelectedVerse = new BorderPane();
 		    VBox vbox = new VBox();
+		    VBox vbox_SelectedVerse = new VBox();
+		    vbox_SelectedVerse.setPrefSize(350, 200);
 		    vbox.getChildren().add(list);
+		    vbox_SelectedVerse.getChildren().add(txtSelectedVerse);
 		    border.setLeft(vbox);
+		    border_SelectedVerse.setLeft(vbox_SelectedVerse);
 		    border.setBottom(btnClose);
 		    searchPopUp.getContent().add(border);
+		    searchPopUpSelectionView.getContent().add(border_SelectedVerse); 
 		    searchPopUp.setOpacity(0.9);
+		    searchPopUpSelectionView.setOpacity(0.9);
 		    searchPopUp.setHideOnEscape(true);
 		    searchPopUp.hideOnEscapeProperty();
+		    searchPopUpSelectionView.setAnchorY(screenBounds.getMaxY()-10);
+		    searchPopUpSelectionView.setAnchorX(screenBounds.getMaxX()-searchPopUp.getAnchorY());
 		    searchPopUp.setAnchorX(screenBounds.getMaxX()-10);
 		    searchPopUp.setAnchorY(screenBounds.getMaxY()-10);
 		    //searchPopUp.show(stage);
 		    btnClose.setOnAction(e -> {
 		    		searchPopUp.hide();
+		    		searchPopUpSelectionView.hide();
 		    });
 		    lookForFoundVerses().start();
 		}
@@ -172,7 +206,7 @@ public class Home extends Application implements Runnable {
     
     
     
-    Scene scene = new Scene(root, screenBounds.getWidth(), screenBounds.getHeight()-100);
+    Scene scene = new Scene(root, screenBounds.getWidth() , screenBounds.getHeight()-100);
     // create a grid pane
     BorderPane border = new BorderPane();
     border.setId("main-border");
@@ -228,6 +262,8 @@ public class Home extends Application implements Runnable {
 	addNoteProp = new AddNote(btnAddComment);
 	addRefProp = new AddRef(btnAddRef);
 	addVerseProp.prepThis().start();
+	addNoteProp.prepThis().start();
+	addRefProp.prepThis().start();
 	
     btnAddVerse.setPrefSize(170, 50);
     btnAddComment.setPrefSize(170, 50);

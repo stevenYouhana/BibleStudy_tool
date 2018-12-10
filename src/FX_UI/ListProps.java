@@ -23,7 +23,7 @@ public abstract class ListProps {
 
 	protected ListView<String> list;
 	Operations ops = new Operations();
-	static int[] generateVerseCode = new int[3];
+	public static int[] generateVerseCode = new int[3];
 	protected final Bible.Book_Comments BOOK_COMMENTS = new Bible.Book_Comments(); 
 	public Log p = new Log();
 	
@@ -135,6 +135,9 @@ class VerseList extends ListProps {
 					vd = new VerseData(list.getSelectionModel().getSelectedItem());
 					vd.setData();
 					//**********SET COMMENT***********
+					p.p("reading comment: "+BOOK_COMMENTS.getVerse(generateVerseCode));
+					RefedVerses.getInstant().getListing().setItems(
+							ops.setRefList(generateVerseCode));
 					txtComment.setText(BOOK_COMMENTS.getVerse(generateVerseCode));
 					RefedVerses.getInstant().getListing().setItems(
 							ops.setRefList(generateVerseCode));

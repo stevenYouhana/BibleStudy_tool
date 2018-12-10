@@ -6,7 +6,9 @@
 #main-border {
 	-fx-background-color: linear-gradient(to right,#d81200, #3a0404);
 }
-
+.text-area {
+	fx-font-size: 16;
+}
 .button {
 	-fx-background-color: #d8d197;
 	-fx-font-color: #3a0404;
@@ -35,4 +37,17 @@
 	-fx-padding:0;
 }
 
+#alert-done {
+	-fx-background-color: linear-gradient(to left, #d3fff6, #ffffff);
+}
+#alert-done:header *.header-panel {
+    -fx-background-color: linear-gradient(to right, #d3fff6, #ffffff);
+}
+#selected-search-txt-area {
+	-fx-text-fill: #0644a8;
+	-fx-font-size: 16pt;
+}
+#selected-search-txt-area .content{
+	-fx-background-color: #fffef2;
+}
 

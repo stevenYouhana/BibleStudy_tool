@@ -19,7 +19,6 @@ public class Search {
 		foundVerses = FXCollections.observableArrayList();
 		p.p("init foundVerses: "+foundVerses);
 		this.txtSearch.setOnKeyReleased(event -> {
-			p.p("searching...");
 				searchString = new Search_String(txtSearch);
 				searchString.start();
 				synchronized(this) {

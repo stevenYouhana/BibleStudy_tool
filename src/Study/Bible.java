@@ -11,6 +11,7 @@ public class Bible {
 	private static Bible instant = null;
 	public static final int NUM = 66;
 	public static Book[] books = new Book[NUM];
+	public Utility.Log p = new Utility.Log(); 
 	public static LinkedList<Verse> mass_verses = new LinkedList<Verse>();
 	private Bible(){
 		
@@ -85,11 +86,12 @@ public class Bible {
 		}
 	}
 	public static class Book_Comments {
+		public Utility.Log p = new Utility.Log(); 
 		// <verseCode,commentary>
-		Map<int[],String> comments = new HashMap<int[],String>();
+		static Map<int[],String> comments = new HashMap<int[],String>();
 		public void initComments() {
 			DB_Ops db = new DB_Ops();
-			db.initComments(comments);	
+			db.initComments(comments);
 		}
 		public boolean exists(int[] verseData, String currentComment) {
 			for(int[] k : comments.keySet()) {
@@ -98,17 +100,41 @@ public class Bible {
 			}
 			return false;
 		}
-		
+		public Map<int[], String> getComments() {
+			return comments;
+		}
+		public LinkedList<String> getComments(int booknum) {
+			LinkedList<String> notes = new LinkedList<>();
+			comments.forEach( (data, note) -> {
+				if(data[1] == booknum) notes.push(note);
+			});
+			return notes;
+		}
 		public void addComment(int[] verseData, String comment) {
 			//check for existing
+			boolean found = false;
+			p.p("adding Comment>> "+comment);
+			p.p("passed data"+verseData);
+			p.p("comments"+comments);
 			for(Map.Entry<int[], String> entry : comments.entrySet()) {
-				if(Arrays.equals(entry.getKey(),verseData)){
-					entry.setValue(comment); 
-					return;
-				}
-				comments.put(verseData, comment); 
-				return;
+				p.p(entry.getKey());
 			}
+//			for(Map.Entry<int[], String> entry : comments.entrySet()) {
+//				p.p("addComment forLoop");
+//				p.p("entry key: "+entry.getKey().toString());
+////				p.p("entrey keys to comments"+entry.getKey());
+//				if(Arrays.equals(entry.getKey(),verseData)) {
+//					entry.setValue(comment);
+//					p.p("found in for loop");
+//					found = true;
+//					return;
+//				}
+////				comments.put(verseData, comment);
+////				return;
+//			}
+			if(!found) p.p("addComment()>> Not found Err");
+			p.p("checking comment _ verse map>> "+comments);
+			
 		}
 		
 		public String getVerse(int[] verseData) {
@@ -136,7 +162,7 @@ public class Bible {
 				dataToId = new HashMap<int[],Integer>(db.GET_DATAtoID_MAP());
 		}
 		
-		public void addReference(UI.AddRef c) {
+		public void addReference(Handling.AddRef c) {
 			this.addReference(c.getToRefDATA(),
 			c.getBeingRefDATA()
 			);
@@ -157,7 +183,7 @@ public class Bible {
 				if(pointer != -1 && actual != -1) return;
 			});
 			if(pointer != -1 && actual != -1)
-				db.Pointer(actual, pointer);
+				db.addPointer(actual, pointer);
 		}
 		
 		public void addVerse(int[] newVerse) {
